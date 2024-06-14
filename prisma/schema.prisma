@@ -10,13 +10,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Subvivision {
+  HR
+  SALES
+}
+
+enum Role {
+  EMPLOYEE
+  HR_MANAGER
+  PROJECT_MANAGER
+  ADMINISTRATOR
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum RequestStatus {
+  NEW
+  APPROVED
+  REJECTED
+}
+
+enum ProjectType {
+  RESEARCH
+  MODIFY
+  UPDATE
+  INSTALLATION
+}
+
+enum AbsenceReason {
+  SICK_LEAVE
+  HOLIDAY
+  OTHER
+}
+
 model Employee {
-  id       String    @id @default(uuid())
-  fullName    String    @unique
-  subdivision   String  
-  position  String
-  status String
-  peoplePartner Int
-  outOfOfficeBalance Int
-  photo String
+  id                 String            @id @default(uuid())
+  fullName           String           
+  subdivision        Subvivision
+  position           Role
+  status             Status            @default(ACTIVE)
+  peoplePartner      Int
+  outOfOfficeBalance Int               
+  photo              String?
+  leaveRequests      LeaveRequest[]
+  approvalRequest    ApprovalRequest[]
+  projects            Project[]
+}
+
+model LeaveRequest {
+  id              String            @id @default(uuid())
+  employeeId      String
+  employee        Employee          @relation(fields: [employeeId], references: [id])
+  absenceReason   AbsenceReason
+  startDate       DateTime
+  endDate         DateTime
+  comment         String?
+  status          RequestStatus     @default(NEW)
+  ApprovalRequest ApprovalRequest[]
+}
+
+model ApprovalRequest {
+  id             String        @id @default(uuid())
+  employeeId     String
+  approver       Employee      @relation(fields: [employeeId], references: [id])
+  leaveRequestID String
+  leaveRequest   LeaveRequest  @relation(fields: [leaveRequestID], references: [id])
+  status         RequestStatus @default(NEW)
+  comment        String?
+}
+
+model Project {
+  id               String      @id @default(uuid())
+  projectType      ProjectType
+  startDate        DateTime
+  endDate          DateTime?
+  comment          String?
+  status           Status      @default(ACTIVE)
+  projectManagerId String
+  projectManager   Employee    @relation(fields: [projectManagerId], references: [id])
 }
