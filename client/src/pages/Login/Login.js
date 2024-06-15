@@ -2,6 +2,7 @@ import { useDispatch } from 'react-redux'
 import Button from '../../common/Button/Button'
 import styles from './Login.module.scss'
 import { setRole } from '../../redux/loggedRoleReducer'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
 	const dispatch = useDispatch()
@@ -10,6 +11,8 @@ const Login = () => {
 		e.preventDefault()
 		dispatch(setRole(e.target.value))
 	}
+
+	const navigate = useNavigate()
 
 	return (
 		<div className='jumbotron'>
@@ -28,7 +31,7 @@ const Login = () => {
 					</option>
 				))}
 			</select>
-			<Button text={'Log in'} onClick={console.log('clicked')} />
+			<Button text={'Log in'} onClick={() => navigate('/lists/employees')} />
 		</div>
 	)
 }
