@@ -13,6 +13,7 @@ datasource db {
 enum Subvivision {
   HR
   SALES
+  IT
 }
 
 enum Role {
@@ -48,16 +49,18 @@ enum AbsenceReason {
 
 model Employee {
   id                 String            @id @default(uuid())
-  fullName           String           
+  fullName           String
   subdivision        Subvivision
   position           Role
   status             Status            @default(ACTIVE)
-  peoplePartner      Int
-  outOfOfficeBalance Int               
+  outOfOfficeBalance Int
   photo              String?
   leaveRequests      LeaveRequest[]
   approvalRequest    ApprovalRequest[]
-  projects            Project[]
+  projects           Project[]
+  peoplePartnerId    String?           
+  peoplePartner      Employee?         @relation("Subordinates", fields: [peoplePartnerId], references: [id])
+  subordinates       Employee[]        @relation("Subordinates")
 }
 
 model LeaveRequest {
@@ -92,3 +95,4 @@ model Project {
   projectManagerId String
   projectManager   Employee    @relation(fields: [projectManagerId], references: [id])
 }
+
