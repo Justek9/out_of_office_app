@@ -23,6 +23,7 @@ export const fetchEmployees = () => {
 const employeesReducer = (statePart = [], action) => {
 	switch (action.type) {
 		case LOAD_EMPLOYEES:
+			console.log(statePart);
 			return [...action.payload]
 
 		default:

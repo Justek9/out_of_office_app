@@ -1,0 +1,17 @@
+@import '../../styles/settings.scss';
+
+.btn {
+	width: 100px;
+	height: 40px;
+	background-color: $color-primary;
+	border-radius: $radius;
+	// color: $color-text-light;
+	font-family: $font-family;
+	outline: none;
+	border: none;
+	margin-bottom: 1rem;
+	&:hover {
+		background-color: $color-primary-light;
+		transition: $transition;
+	}
+}

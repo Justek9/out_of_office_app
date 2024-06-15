@@ -1,3 +1,3 @@
-const initialState = { employees: [] }
+const initialState = { employees: [], loggedRole: null }
 
 export default initialState
