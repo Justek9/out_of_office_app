@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Table, Button } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
-import { getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
+import { fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
 import EditEmployeeModal from '../EditEmployeeModal/EditEmployeeModal'
+import { API_URL } from '../../config'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -10,6 +11,9 @@ const EmployeesTable = () => {
 	const [sortBy, setSortBy] = useState({ key: 'fullName' })
 	const [showModal, setShowModal] = useState(false)
 	const [currentEmployee, setCurrentEmployee] = useState(null)
+	const [updatedEmployee, setUpdatedEmployee] = useState({})
+	const [status, setStatus] = useState(null)
+	// null, 'loading', 'success', 'serverError',
 
 	const sortedData = employees.sort((a, b) => {
 		if (a[sortBy.key] < b[sortBy.key]) {
@@ -21,18 +25,41 @@ const EmployeesTable = () => {
 
 	const handleEditClick = employee => {
 		setCurrentEmployee(employee)
+		setUpdatedEmployee(employee)
 		setShowModal(true)
 	}
 
 	const handleSave = () => {
-		dispatch(updateEmployee(currentEmployee))
+		setStatus('loading')
+
+		const options = {
+			method: 'PUT',
+			body: JSON.stringify(updatedEmployee),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+
+		fetch(`${API_URL}/employees/${updatedEmployee.id}`, options)
+			.then(res => {
+				if (res.status === 200) {
+					setStatus('success')
+					dispatch(updateEmployee(updatedEmployee))
+					dispatch(fetchEmployees)
+					setShowModal(false)
+				} else {
+					setStatus('serverError')
+				}
+			})
+			.catch(e => setStatus('serverError'))
+
 		setShowModal(false)
 	}
 
 	const handleChange = e => {
 		console.log(e.target)
 		const { name, value } = e.target
-		setCurrentEmployee(previous => ({
+		setUpdatedEmployee(previous => ({
 			...previous,
 			[name]: value,
 		}))
@@ -78,7 +105,7 @@ const EmployeesTable = () => {
 					setShowModal={setShowModal}
 					handleSave={handleSave}
 					handleChange={handleChange}
-					updatedEmployee={currentEmployee}
+					updatedEmployee={updatedEmployee}
 				/>
 			)}
 		</>
