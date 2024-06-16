@@ -25,7 +25,45 @@ exports.edit = async (req, res) => {
 			peoplePartner = undefined
 		}
 
-		let uploadData = { fullName, subdivision, position, status, outOfOfficeBalance, peoplePartner }
+		const id = req.params.id
+		outOfOfficeBalance = parseInt(outOfOfficeBalance)
+
+		const employee = await prisma.employee.findUnique({
+			where: {
+				id: id,
+			},
+		})
+
+		if (employee) {
+			await prisma.employee.update({
+				where: {
+					id: id,
+				},
+				data: {
+					fullName,
+					subdivision,
+					position,
+					status,
+					outOfOfficeBalance,
+					peoplePartner: {
+						update: {
+							fullName: peoplePartner?.fullName,
+						},
+					},
+				},
+			})
+			res.send({ message: 'Employee changed' })
+		} else {
+			res.status(404).json('Employee not found')
+		}
+	} catch (err) {
+		res.status(500).json({ error: err.message })
+	}
+}
+
+exports.changeStatus = async (req, res) => {
+	console.log('jestem w patch')
+	try {
 		const id = req.params.id
 
 		const employee = await prisma.employee.findUnique({
@@ -39,9 +77,11 @@ exports.edit = async (req, res) => {
 				where: {
 					id: id,
 				},
-				data: uploadData,
+				data: {
+					status: 'INACTIVE',
+				},
 			})
-			res.send({ message: 'Employee changed' })
+			res.send({ message: 'Employee deactivated' })
 		} else {
 			res.status(404).json('Employee not found')
 		}

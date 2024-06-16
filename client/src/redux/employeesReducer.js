@@ -7,9 +7,11 @@ export const getAllEmployees = ({ employees }) => {
 const createActionName = actionName => `app/employees/${actionName}`
 const LOAD_EMPLOYEES = createActionName('LOAD_EMPLOYEES')
 const UPDATE_EMPLOYEES = createActionName('UPDATE_EMPLOYEE')
+const DEACTIVATE_EMPLOYEE = createActionName('DEACTIVATE_EMPLOYEE')
 
 export const loadEmployees = payload => ({ type: LOAD_EMPLOYEES, payload })
 export const updateEmployee = payload => ({ type: UPDATE_EMPLOYEES, payload })
+export const deactivateEmployee = payload => ({ type: DEACTIVATE_EMPLOYEE, payload })
 
 export const fetchEmployees = () => {
 	return dispatch => {
@@ -32,6 +34,10 @@ const employeesReducer = (statePart = [], action) => {
 			return [...action.payload]
 		case UPDATE_EMPLOYEES:
 			return statePart.map(employee => (employee.id === action.payload.id ? { ...action.payload } : employee))
+		case DEACTIVATE_EMPLOYEE:
+			return statePart.map(employee =>
+				employee.id === action.payload.id ? { ...employee, status: 'INACTIVE' } : employee
+			)
 		default:
 			return statePart
 	}

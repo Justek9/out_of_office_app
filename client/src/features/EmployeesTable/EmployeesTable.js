@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Table, Button } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
+import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
 import EditEmployeeModal from '../EditEmployeeModal/EditEmployeeModal'
 import { API_URL } from '../../config'
+import Button from '../../common/Button/Button'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -57,12 +58,31 @@ const EmployeesTable = () => {
 	}
 
 	const handleChange = e => {
-		console.log(e.target)
 		const { name, value } = e.target
 		setUpdatedEmployee(previous => ({
 			...previous,
 			[name]: value,
 		}))
+	}
+
+	const handleDeactivate = id => {
+		const options = {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+		fetch(`${API_URL}/employees/${id}`, options)
+			.then(res => {
+				if (res.status === 200) {
+					setStatus('success')
+					dispatch(deactivateEmployee({ id }))
+					dispatch(fetchEmployees)
+				} else {
+					setStatus('serverError')
+				}
+			})
+			.catch(e => setStatus('serverError'))
 	}
 
 	return (
@@ -91,8 +111,11 @@ const EmployeesTable = () => {
 							<td>{employee.peoplePartner?.fullName}</td>
 							<td>{employee.outOfOfficeBalance}</td>
 							<td>
-								<Button variant='primary' onClick={() => handleEditClick(employee)}>
+								<Button color='blue' text={"Edit"} onClick={() => handleEditClick(employee)}>
 									Edit
+								</Button>
+								<Button color='gray' text={"Deactivate"} onClick={() => handleDeactivate(employee.id)}>
+									Deactivate
 								</Button>
 							</td>
 						</tr>
