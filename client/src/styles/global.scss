@@ -21,3 +21,10 @@ html {
 		color: $color-primary;
 	}
 }
+
+th {
+	&:hover {
+		cursor: pointer !important;
+		color: $color-primary;
+	}
+}
