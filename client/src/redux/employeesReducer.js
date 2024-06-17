@@ -26,8 +26,8 @@ export const fetchEmployees = () => {
 			.then(res => {
 				return res.json()
 			})
-			.then(ads => {
-				dispatch(loadEmployees(ads))
+			.then(employees => {
+				dispatch(loadEmployees(employees))
 			})
 			.catch(error => {
 				console.log(error)

@@ -3,7 +3,8 @@ const cors = require('cors')
 const dotenv = require('dotenv').config()
 const path = require('path')
 
-const employeesRoutes = require("./routes/employees.routes")
+const employeesRoutes = require('./routes/employees.routes')
+const projectsRoutes = require('./routes/projects.routes')
 
 const app = express()
 const server = app.listen(process.env.PORT || '8000', () => {
@@ -22,6 +23,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/api/', employeesRoutes)
+app.use('/api/', projectsRoutes)
 
 app.use((req, res) => {
 	res.status(404).send({ message: 'Not found...' })
