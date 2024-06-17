@@ -3,6 +3,7 @@ import { Button, Modal, Form } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { addEmployee, fetchEmployees, getPeoplePartners } from '../../redux/employeesReducer'
 import { API_URL } from '../../config'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
 	const subdivisions = ['HR', 'SALES', 'IT']
@@ -148,6 +149,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 					Save Changes
 				</Button>
 			</Modal.Footer>
+			{status === 'loading' && <LoadingSpinner />}
 		</Modal>
 	)
 }

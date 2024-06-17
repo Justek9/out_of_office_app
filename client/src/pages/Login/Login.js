@@ -3,6 +3,7 @@ import Button from '../../common/Button/Button'
 import styles from './Login.module.scss'
 import { setRole } from '../../redux/loggedRoleReducer'
 import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const Login = () => {
 	const dispatch = useDispatch()

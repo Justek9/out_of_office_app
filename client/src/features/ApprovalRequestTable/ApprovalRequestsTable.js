@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { API_URL } from '../../config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const ApprovalRequestsTable = () => {
 	const [approvalRequests, setApprovalRequests] = useState([])
@@ -31,6 +32,7 @@ const ApprovalRequestsTable = () => {
 
 	return (
 		<>
+			{status === 'loading' && <LoadingSpinner />}
 			<Table responsive='sm'>
 				<thead>
 					<tr>

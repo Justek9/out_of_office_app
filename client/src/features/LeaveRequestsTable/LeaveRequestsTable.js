@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { API_URL } from '../../config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const LeaveRequestsTable = () => {
 	const [leaveRequests, setLeaveRequests] = useState([])
@@ -31,40 +32,44 @@ const LeaveRequestsTable = () => {
 
 	return (
 		<>
-			<Table responsive='sm'>
-				<thead>
-					<tr>
-						<th>No.</th>
-						<th onClick={() => setSortBy({ key: 'employee' })}>Employee</th>
-						<th onClick={() => setSortBy({ key: 'absenceReason' })}>Absence reason</th>
-						<th onClick={() => setSortBy({ key: 'startDate' })}>Start Date</th>
-						<th onClick={() => setSortBy({ key: 'endDate' })}>End Date</th>
-						<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
-						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-						<th onClick={() => setSortBy({ key: 'projectManager' })}>Project manager</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{leaveRequests.map((leaveRequest, i) => (
-						<tr key={i}>
-							<td>{i + 1}</td>
-							<td>{leaveRequest.employee.fullName}</td>
-							<td>{leaveRequest.absenceReason}</td>
-							<td>{leaveRequest.startDate.slice(0, 10)}</td>
-							<td>{leaveRequest.endDate.slice(0, 10)}</td>
-							<td>{leaveRequest.comment}</td>
-							<td>{leaveRequest.status}</td>
-							<td>{leaveRequest.projectManager}</td>
-							<td>
-								<Button color='blue' text={'Edit'}>
-									Edit
-								</Button>
-							</td>
+			{status === 'loading' && <LoadingSpinner />}
+
+			{status === 'success' && (
+				<Table responsive='sm'>
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th onClick={() => setSortBy({ key: 'employee' })}>Employee</th>
+							<th onClick={() => setSortBy({ key: 'absenceReason' })}>Absence reason</th>
+							<th onClick={() => setSortBy({ key: 'startDate' })}>Start Date</th>
+							<th onClick={() => setSortBy({ key: 'endDate' })}>End Date</th>
+							<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
+							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
+							<th onClick={() => setSortBy({ key: 'projectManager' })}>Project manager</th>
+							<th>Actions</th>
 						</tr>
-					))}
-				</tbody>
-			</Table>
+					</thead>
+					<tbody>
+						{leaveRequests.map((leaveRequest, i) => (
+							<tr key={i}>
+								<td>{i + 1}</td>
+								<td>{leaveRequest.employee.fullName}</td>
+								<td>{leaveRequest.absenceReason}</td>
+								<td>{leaveRequest.startDate.slice(0, 10)}</td>
+								<td>{leaveRequest.endDate.slice(0, 10)}</td>
+								<td>{leaveRequest.comment}</td>
+								<td>{leaveRequest.status}</td>
+								<td>{leaveRequest.projectManager}</td>
+								<td>
+									<Button color='blue' text={'Edit'}>
+										Edit
+									</Button>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</Table>
+			)}
 		</>
 	)
 }

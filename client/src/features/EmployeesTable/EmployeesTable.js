@@ -5,6 +5,7 @@ import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } f
 import EditEmployeeModal from '../EditAddEmployeeModal/EditAddEmployeeModal'
 import { API_URL } from '../../config'
 import Button from '../../common/Button/Button'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -86,6 +87,7 @@ const EmployeesTable = () => {
 
 	return (
 		<>
+			{status === 'loading' && <LoadingSpinner />}
 			<Table responsive='sm'>
 				<thead>
 					<tr>
@@ -121,6 +123,7 @@ const EmployeesTable = () => {
 					))}
 				</tbody>
 			</Table>
+
 			{currentEmployee && (
 				<EditEmployeeModal
 					showModal={showModal}
