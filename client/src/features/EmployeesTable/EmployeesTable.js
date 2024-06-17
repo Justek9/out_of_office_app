@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Table } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
-import EditEmployeeModal from '../EditEmployeeModal/EditEmployeeModal'
+import EditEmployeeModal from '../EditAddEmployeeModal/EditAddEmployeeModal'
 import { API_URL } from '../../config'
 import Button from '../../common/Button/Button'
 
@@ -32,7 +32,6 @@ const EmployeesTable = () => {
 
 	const handleSave = () => {
 		setStatus('loading')
-
 		const options = {
 			method: 'PUT',
 			body: JSON.stringify(updatedEmployee),
@@ -111,10 +110,10 @@ const EmployeesTable = () => {
 							<td>{employee.peoplePartner?.fullName}</td>
 							<td>{employee.outOfOfficeBalance}</td>
 							<td>
-								<Button color='blue' text={"Edit"} onClick={() => handleEditClick(employee)}>
+								<Button color='blue' text={'Edit'} onClick={() => handleEditClick(employee)}>
 									Edit
 								</Button>
-								<Button color='gray' text={"Deactivate"} onClick={() => handleDeactivate(employee.id)}>
+								<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>
 									Deactivate
 								</Button>
 							</td>
@@ -129,6 +128,7 @@ const EmployeesTable = () => {
 					handleSave={handleSave}
 					handleChange={handleChange}
 					updatedEmployee={updatedEmployee}
+					action='Edit'
 				/>
 			)}
 		</>

@@ -62,7 +62,6 @@ exports.edit = async (req, res) => {
 }
 
 exports.changeStatus = async (req, res) => {
-	console.log('jestem w patch')
 	try {
 		const id = req.params.id
 
@@ -84,6 +83,31 @@ exports.changeStatus = async (req, res) => {
 			res.send({ message: 'Employee deactivated' })
 		} else {
 			res.status(404).json('Employee not found')
+		}
+	} catch (err) {
+		res.status(500).json({ error: err.message })
+	}
+}
+
+exports.add = async (req, res) => {
+	try {
+		let { fullName, subdivision, position, status, outOfOfficeBalance, peoplePartnerId } = req.body
+		outOfOfficeBalance = parseInt(outOfOfficeBalance)
+
+		if ((fullName, subdivision, position, status, outOfOfficeBalance, peoplePartnerId)) {
+			await prisma.employee.create({
+				data: {
+					fullName,
+					subdivision,
+					position,
+					status,
+					outOfOfficeBalance,
+					peoplePartnerId,
+				},
+			})
+			res.send({ message: 'Employee added' })
+		} else {
+			res.status(400).json('Not enough data')
 		}
 	} catch (err) {
 		res.status(500).json({ error: err.message })

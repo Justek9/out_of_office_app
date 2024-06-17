@@ -4,14 +4,21 @@ export const getAllEmployees = ({ employees }) => {
 	return employees
 }
 
+export const getPeoplePartners = ({ employees }) => {
+	let partners = employees.filter(employee => employee.position === 'HR_MANAGER')
+	return partners
+}
+
 const createActionName = actionName => `app/employees/${actionName}`
 const LOAD_EMPLOYEES = createActionName('LOAD_EMPLOYEES')
 const UPDATE_EMPLOYEES = createActionName('UPDATE_EMPLOYEE')
 const DEACTIVATE_EMPLOYEE = createActionName('DEACTIVATE_EMPLOYEE')
+const ADD_EMPLOYEE = createActionName('ADD_EMPLOYEE')
 
 export const loadEmployees = payload => ({ type: LOAD_EMPLOYEES, payload })
 export const updateEmployee = payload => ({ type: UPDATE_EMPLOYEES, payload })
 export const deactivateEmployee = payload => ({ type: DEACTIVATE_EMPLOYEE, payload })
+export const addEmployee = payload => ({ type: ADD_EMPLOYEE, payload })
 
 export const fetchEmployees = () => {
 	return dispatch => {
@@ -38,6 +45,13 @@ const employeesReducer = (statePart = [], action) => {
 			return statePart.map(employee =>
 				employee.id === action.payload.id ? { ...employee, status: 'INACTIVE' } : employee
 			)
+		case ADD_EMPLOYEE:
+			return [
+				...statePart,
+				{
+					...action.payload,
+				},
+			]
 		default:
 			return statePart
 	}
