@@ -1,26 +1,27 @@
-import { API_URL } from '../config'
+import { API_URL } from '../settings/config'
+import { rolesObj } from '../settings/settings'
 
 export const getAllEmployees = ({ employees }) => {
 	return employees
 }
 
 export const getPeoplePartners = ({ employees }) => {
-	let partners = employees.filter(employee => employee.position === 'HR_MANAGER')
+	let partners = employees.filter(employee => employee.position === rolesObj.hrManager)
 	return partners
 }
 
 export const getAdmins = ({ employees }) => {
-	let admins = employees.filter(employee => employee.position === 'ADMINISTRATOR')
+	let admins = employees.filter(employee => employee.position === rolesObj.admin)
 	return admins
 }
 
 export const getEmployyes = ({ employees }) => {
-	let allEmployees = employees.filter(employee => employee.position === 'EMPLOYEE')
+	let allEmployees = employees.filter(employee => employee.position === rolesObj.employee)
 	return allEmployees
 }
 
 export const getProjectManagers = ({ employees }) => {
-	let pms = employees.filter(employee => employee.position === 'PROJECT_MANAGER')
+	let pms = employees.filter(employee => employee.position === rolesObj.PM)
 	return pms
 }
 

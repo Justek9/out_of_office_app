@@ -2,13 +2,19 @@ import { useState } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { addEmployee, fetchEmployees, getPeoplePartners } from '../../redux/employeesReducer'
-import { API_URL } from '../../config'
+import { API_URL } from '../../settings/config'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import {
+	rolesArray as positions,
+	subdivisionsArray as subdivisions,
+	statusesArray as statuses,
+	subdivisionsObj,
+	rolesObj,
+	statusesObj,
+	fetchStatuses,
+} from '../../settings/settings'
 
 const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
-	const subdivisions = ['HR', 'SALES', 'IT']
-	const positions = ['EMPLOYEE', 'HR_MANAGER', 'PROJECT_MANAGER', 'ADMINISTRATOR']
-	const statuses = ['ACTIVE', 'INACTIVE']
 	const [status, setStatus] = useState(null)
 	const peoplePartners = useSelector(state => getPeoplePartners(state))
 
@@ -16,12 +22,16 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 
 	const [newEmployee, setNewEmployee] = useState({
 		fullName: '',
-		subdivision: 'HR',
-		position: 'HR_MANAGER',
-		status: 'ACTIVE',
+		subdivision: subdivisionsObj.hr,
+		position: rolesObj.hrManager,
+		status: statusesObj.active,
 		peoplePartner: 'Alice Brown',
 		outOfOfficeBalance: '',
 	})
+
+	const isActionEdit = action => {
+		return action === 'Edit' ? true : false
+	}
 
 	const getPeoplePartnerId = name => {
 		const partner = peoplePartners.find(partner => partner.fullName.trim().toUpperCase() === name.trim().toUpperCase())
@@ -46,21 +56,21 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		fetch(`${API_URL}/employees`, options)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					dispatch(addEmployee(newEmployee))
 					setShowModal(false)
 					dispatch(fetchEmployees)
 				} else {
-					setStatus('serverError')
+					setStatus(fetchStatuses.serverError)
 				}
 			})
-			.catch(e => setStatus('serverError'))
+			.catch(e => setStatus(fetchStatuses.serverError))
 	}
 
 	return (
 		<Modal show={showModal} onHide={() => setShowModal(false)}>
 			<Modal.Header closeButton>
-				<Modal.Title>{action === 'Edit' ? 'Edit' : 'Add'} Employee</Modal.Title>
+				<Modal.Title>{isActionEdit(action) ? 'Edit' : 'Add'} Employee</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form>
@@ -69,8 +79,8 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							type='text'
 							name='fullName'
-							value={action === 'Edit' ? updatedEmployee.fullName : newEmployee.fullName}
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('fullName', e.target.value))}
+							value={isActionEdit(action) ? updatedEmployee.fullName : newEmployee.fullName}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('fullName', e.target.value))}
 						/>
 					</Form.Group>
 					<Form.Group controlId='formSubdivision'>
@@ -78,8 +88,8 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							as='select'
 							name='subdivision'
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('subdivision', e.target.value))}
-							value={action === 'Edit' ? updatedEmployee.subdivision : newEmployee.subdivision}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('subdivision', e.target.value))}
+							value={isActionEdit(action) ? updatedEmployee.subdivision : newEmployee.subdivision}
 							fullName>
 							{subdivisions.map(subdivision => (
 								<option key={subdivision} value={subdivision}>
@@ -93,8 +103,8 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							as='select'
 							name='position'
-							value={action === 'Edit' ? updatedEmployee.position : newEmployee.position}
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('position', e.target.value))}>
+							value={isActionEdit(action) ? updatedEmployee.position : newEmployee.position}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('position', e.target.value))}>
 							{positions.map(position => (
 								<option key={position} value={position}>
 									{position}
@@ -107,8 +117,8 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							as='select'
 							name='status'
-							value={action === 'Edit' ? updatedEmployee.status : newEmployee.status}
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('status', e.target.value))}>
+							value={isActionEdit(action) ? updatedEmployee.status : newEmployee.status}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('status', e.target.value))}>
 							{statuses.map(status => (
 								<option key={status} value={status}>
 									{status}
@@ -121,8 +131,8 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							as='select'
 							name='peoplePartner'
-							value={action === 'Edit' ? updatedEmployee.peoplePartner?.fullName : newEmployee.peoplePartner}
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('peoplePartner', e.target.value))}>
+							value={isActionEdit(action) ? updatedEmployee.peoplePartner?.fullName : newEmployee.peoplePartner}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('peoplePartner', e.target.value))}>
 							{peoplePartners.map(partner => (
 								<option key={partner.id} value={partner.fullName}>
 									{partner.fullName}
@@ -135,8 +145,10 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 						<Form.Control
 							type='number'
 							name='outOfOfficeBalance'
-							value={action === 'Edit' ? updatedEmployee.outOfOfficeBalance : newEmployee.outOfOfficeBalance}
-							onChange={e => (action === 'Edit' ? handleChange(e) : handleAddNew('outOfOfficeBalance', e.target.value))}
+							value={isActionEdit(action) ? updatedEmployee.outOfOfficeBalance : newEmployee.outOfOfficeBalance}
+							onChange={e =>
+								isActionEdit(action) ? handleChange(e) : handleAddNew('outOfOfficeBalance', e.target.value)
+							}
 						/>
 					</Form.Group>
 				</Form>
@@ -145,11 +157,11 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 				<Button variant='secondary' onClick={() => setShowModal(false)}>
 					Close
 				</Button>
-				<Button variant='primary' onClick={action === 'Edit' ? handleSave : handleSaveAddNew}>
+				<Button variant='primary' onClick={isActionEdit(action) ? handleSave : handleSaveAddNew}>
 					Save Changes
 				</Button>
 			</Modal.Footer>
-			{status === 'loading' && <LoadingSpinner />}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
 		</Modal>
 	)
 }

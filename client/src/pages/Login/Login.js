@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { getAdmins, getEmployyes, getPeoplePartners, getProjectManagers } from '../../redux/employeesReducer'
 import OptionsForEmployeeNameSelect from '../../common/OptionsForEmployeeSelect/OptionsForEmployeeSelect'
+import { rolesArray as roles } from '../../settings/settings'
 
 const Login = () => {
-	const roles = ['EMPLOYEE', 'HR_MANAGER', 'PROJECT_MANAGER', 'ADMINISTRATOR']
 	const dispatch = useDispatch()
 
 	const selectRoleHandler = e => {
@@ -18,7 +18,7 @@ const Login = () => {
 
 	const selectNameHandler = e => {
 		e.preventDefault()
-		console.log(e.target);
+		console.log(e.target)
 		dispatch(setName(e.target.value))
 	}
 

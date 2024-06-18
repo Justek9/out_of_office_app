@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react'
-import { API_URL } from '../../config'
+import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import { fetchStatuses } from '../../settings/settings'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import { sortASC } from '../../settings/utils'
 
 const LeaveRequestsTable = () => {
 	const [leaveRequests, setLeaveRequests] = useState([])
 	const [sortBy, setSortBy] = useState({ key: 'employee' })
-
-	const [status, setStatus] = useState(null)
-	// null, 'loading', 'success', 'serverError',
+	const [status, setStatus] = useState(fetchStatuses.null)
+	const sortedData = sortASC(leaveRequests, sortBy)
 
 	useEffect(() => {
-		setStatus('loading')
+		setStatus(fetchStatuses.loading)
 
 		fetch(`${API_URL}/leaveRequests`)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					return res.json()
 				}
 			})
@@ -26,15 +28,16 @@ const LeaveRequestsTable = () => {
 				setLeaveRequests(leaveRequests)
 			})
 			.catch(error => {
-				setStatus('serverError')
+				setStatus(fetchStatuses.serverError)
 			})
 	}, [])
 
 	return (
 		<>
-			{status === 'loading' && <LoadingSpinner />}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
+			{status === fetchStatuses.serverError && <ErrorMessage />}
 
-			{status === 'success' && (
+			{status === fetchStatuses.success && (
 				<Table responsive='sm'>
 					<thead>
 						<tr>
@@ -50,7 +53,7 @@ const LeaveRequestsTable = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{leaveRequests.map((leaveRequest, i) => (
+						{sortedData.map((leaveRequest, i) => (
 							<tr key={i}>
 								<td>{i + 1}</td>
 								<td>{leaveRequest.employee.fullName}</td>
@@ -61,7 +64,7 @@ const LeaveRequestsTable = () => {
 								<td>{leaveRequest.status}</td>
 								<td>{leaveRequest.projectManager}</td>
 								<td>
-									<Button color='blue' text={'Edit'}>
+									<Button color='#3c8d2f80' text={'Edit'}>
 										Edit
 									</Button>
 								</td>

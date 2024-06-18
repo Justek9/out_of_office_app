@@ -3,9 +3,11 @@ import { Table } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
 import EditEmployeeModal from '../EditAddEmployeeModal/EditAddEmployeeModal'
-import { API_URL } from '../../config'
+import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import { fetchStatuses } from '../../settings/settings'
+import { sortASC } from '../../settings/utils'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -14,16 +16,8 @@ const EmployeesTable = () => {
 	const [showModal, setShowModal] = useState(false)
 	const [currentEmployee, setCurrentEmployee] = useState(null)
 	const [updatedEmployee, setUpdatedEmployee] = useState({})
-	const [status, setStatus] = useState(null)
-	// null, 'loading', 'success', 'serverError',
-
-	const sortedData = employees.sort((a, b) => {
-		if (a[sortBy.key] < b[sortBy.key]) {
-			return -1
-		} else {
-			return 1
-		}
-	})
+	const [status, setStatus] = useState(fetchStatuses.null)
+	const sortedData = sortASC(employees, sortBy)
 
 	const handleEditClick = employee => {
 		setCurrentEmployee(employee)
@@ -32,7 +26,7 @@ const EmployeesTable = () => {
 	}
 
 	const handleSave = () => {
-		setStatus('loading')
+		setStatus(fetchStatuses.loading)
 		const options = {
 			method: 'PUT',
 			body: JSON.stringify(updatedEmployee),
@@ -44,15 +38,15 @@ const EmployeesTable = () => {
 		fetch(`${API_URL}/employees/${updatedEmployee.id}`, options)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					dispatch(updateEmployee(updatedEmployee))
 					dispatch(fetchEmployees)
 					setShowModal(false)
 				} else {
-					setStatus('serverError')
+					setStatus(fetchStatuses.serverError)
 				}
 			})
-			.catch(e => setStatus('serverError'))
+			.catch(e => setStatus(fetchStatuses.serverError))
 
 		setShowModal(false)
 	}
@@ -75,19 +69,21 @@ const EmployeesTable = () => {
 		fetch(`${API_URL}/employees/${id}`, options)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					dispatch(deactivateEmployee({ id }))
 					dispatch(fetchEmployees)
 				} else {
-					setStatus('serverError')
+					setStatus(fetchStatuses.serverError)
 				}
 			})
-			.catch(e => setStatus('serverError'))
+			.catch(e => setStatus(fetchStatuses.serverError))
 	}
 
+	if (!employees) return
 	return (
 		<>
-			{status === 'loading' && <LoadingSpinner />}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
+
 			<Table responsive='sm'>
 				<thead>
 					<tr>
@@ -112,7 +108,7 @@ const EmployeesTable = () => {
 							<td>{employee.peoplePartner?.fullName}</td>
 							<td>{employee.outOfOfficeBalance}</td>
 							<td>
-								<Button color='blue' text={'Edit'} onClick={() => handleEditClick(employee)}>
+								<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(employee)}>
 									Edit
 								</Button>
 								<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>

@@ -1,64 +1,69 @@
 import { useEffect, useState } from 'react'
-import { API_URL } from '../../config'
+import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import { fetchStatuses } from '../../settings/settings'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import { sortASC } from '../../settings/utils'
 
 const ApprovalRequestsTable = () => {
 	const [approvalRequests, setApprovalRequests] = useState([])
-	const [sortBy, setSortBy] = useState({ key: 'employee' })
-
-	const [status, setStatus] = useState(null)
-	// null, 'loading', 'success', 'serverError',
+	const [sortBy, setSortBy] = useState({ key: 'approver' })
+	const [status, setStatus] = useState(fetchStatuses.null)
+	const sortedData = sortASC(approvalRequests, sortBy)
 
 	useEffect(() => {
-		setStatus('loading')
+		setStatus(fetchStatuses.loading)
 
 		fetch(`${API_URL}/approvalRequests`)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					return res.json()
 				}
 			})
 			.then(approvalRequests => {
-				console.log(approvalRequests)
 				setApprovalRequests(approvalRequests)
 			})
 			.catch(error => {
-				setStatus('serverError')
+				setStatus(fetchStatuses.serverError)
 			})
 	}, [])
 
 	return (
 		<>
-			{status === 'loading' && <LoadingSpinner />}
-			<Table responsive='sm'>
-				<thead>
-					<tr>
-						<th>No.</th>
-						<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
-						<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
-						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{approvalRequests.map((approvalRequest, i) => (
-						<tr key={i}>
-							<td>{i + 1}</td>
-							<td>{approvalRequest.approver.fullName}</td>
-							<td>{approvalRequest.comment}</td>
-							<td>{approvalRequest.status}</td>
-							<td>
-								<Button color='blue' text={'Edit'}>
-									Edit status
-								</Button>
-							</td>
+			{status === fetchStatuses.loading && <LoadingSpinner />}
+			{status === fetchStatuses.serverError && <ErrorMessage />}
+
+			{status === fetchStatuses.success && (
+				<Table responsive='sm'>
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
+							<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
+							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
+							<th>Actions</th>
 						</tr>
-					))}
-				</tbody>
-			</Table>
+					</thead>
+					<tbody>
+						{sortedData.map((approvalRequest, i) => (
+							<tr key={i}>
+								<td>{i + 1}</td>
+								<td>{approvalRequest.approver.fullName}</td>
+								<td>{approvalRequest.comment}</td>
+								<td>{approvalRequest.status}</td>
+								<td>
+									<Button color='#3c8d2f80' text={'Edit'}>
+										Edit status
+									</Button>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</Table>
+			)}
 		</>
 	)
 }

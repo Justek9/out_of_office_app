@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react'
-import { API_URL } from '../../config'
+import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import { fetchStatuses } from '../../settings/settings'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import { sortASC } from '../../settings/utils'
 
 const ProjectsTable = () => {
 	const [projects, setProjects] = useState([])
 	const [sortBy, setSortBy] = useState({ key: 'projectType' })
-
-	const [status, setStatus] = useState(null)
-	console.log(projects)
-	// null, 'loading', 'success', 'serverError',
+	const [status, setStatus] = useState(fetchStatuses.null)
+	const sortedData = sortASC(projects, sortBy)
 
 	useEffect(() => {
-		setStatus('loading')
+		setStatus(fetchStatuses.loading)
 
 		fetch(`${API_URL}/projects`)
 			.then(res => {
 				if (res.status === 200) {
-					setStatus('success')
+					setStatus(fetchStatuses.success)
 					return res.json()
 				}
 			})
@@ -26,15 +27,16 @@ const ProjectsTable = () => {
 				setProjects(projects)
 			})
 			.catch(error => {
-				setStatus('serverError')
+				setStatus(fetchStatuses.serverError)
 			})
 	}, [])
 
 	return (
 		<>
-			{status === 'loading' && <LoadingSpinner />}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
+			{status === fetchStatuses.serverError && <ErrorMessage />}
 
-			{status === 'success' && (
+			{status === fetchStatuses.success && (
 				<Table responsive='sm'>
 					<thead>
 						<tr>
@@ -49,7 +51,7 @@ const ProjectsTable = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{projects.map((project, i) => (
+						{sortedData.map((project, i) => (
 							<tr key={i}>
 								<td>{i + 1}</td>
 								<td>{project.projectType}</td>
@@ -59,7 +61,7 @@ const ProjectsTable = () => {
 								<td>{project.status}</td>
 								<td>{project.projectManager.fullName}</td>
 								<td>
-									<Button color='blue' text={'Edit'}>
+									<Button color='#3c8d2f80' text={'Edit'}>
 										Edit
 									</Button>
 								</td>
