@@ -9,6 +9,21 @@ export const getPeoplePartners = ({ employees }) => {
 	return partners
 }
 
+export const getAdmins = ({ employees }) => {
+	let admins = employees.filter(employee => employee.position === 'ADMINISTRATOR')
+	return admins
+}
+
+export const getEmployyes = ({ employees }) => {
+	let allEmployees = employees.filter(employee => employee.position === 'EMPLOYEE')
+	return allEmployees
+}
+
+export const getProjectManagers = ({ employees }) => {
+	let pms = employees.filter(employee => employee.position === 'PROJECT_MANAGER')
+	return pms
+}
+
 const createActionName = actionName => `app/employees/${actionName}`
 const LOAD_EMPLOYEES = createActionName('LOAD_EMPLOYEES')
 const UPDATE_EMPLOYEES = createActionName('UPDATE_EMPLOYEE')

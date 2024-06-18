@@ -2,11 +2,10 @@ import { createStore, combineReducers, compose, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
 import initialState from './initialState'
 import employeesReducer from './employeesReducer'
-import loggedRoleReducer from './loggedRoleReducer'
-
+import loggedPersonReducer from './loggedPersonReducer'
 
 const subreducers = {
-	loggedRole: loggedRoleReducer,
+	loggedPerson: loggedPersonReducer,
 	employees: employeesReducer,
 }
 
