@@ -1,54 +1,40 @@
 import { useEffect, useState } from 'react'
-import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { fetchStatuses } from '../../settings/settings'
+import { fetchStatuses, requestStatus } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchLeaveRequests, getLeaveRequests, loadLeaveRequests } from '../../redux/leaveRequestsReducer'
 
 const LeaveRequestsTable = () => {
-	const [leaveRequests, setLeaveRequests] = useState([])
+	const leaveRequests = useSelector(state => getLeaveRequests(state))
 	const [sortBy, setSortBy] = useState({ key: 'employee' })
 	const [status, setStatus] = useState(fetchStatuses.null)
 	const sortedData = sortASC(leaveRequests, sortBy)
+	const dispatch = useDispatch()
 
-	useEffect(() => {
-		setStatus(fetchStatuses.loading)
+	useEffect(() => dispatch(fetchLeaveRequests()), [])
 
-		fetch(`${API_URL}/leaveRequests`)
-			.then(res => {
-				if (res.status === 200) {
-					setStatus(fetchStatuses.success)
-					return res.json()
-				}
-			})
-			.then(leaveRequests => {
-				console.log(leaveRequests)
-				setLeaveRequests(leaveRequests)
-			})
-			.catch(error => {
-				setStatus(fetchStatuses.serverError)
-			})
-	}, [])
+	const handleChangeStatus = () => {}
 
 	return (
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 			{status === fetchStatuses.serverError && <ErrorMessage />}
 
-			{status === fetchStatuses.success && (
+			{leaveRequests.length !== 0 && (
 				<Table responsive='sm'>
 					<thead>
 						<tr>
 							<th>No.</th>
-							<th onClick={() => setSortBy({ key: 'employee' })}>Employee</th>
+							<th onClick={() => setSortBy({ key: 'employeeId' })}>Employee</th>
 							<th onClick={() => setSortBy({ key: 'absenceReason' })}>Absence reason</th>
 							<th onClick={() => setSortBy({ key: 'startDate' })}>Start Date</th>
 							<th onClick={() => setSortBy({ key: 'endDate' })}>End Date</th>
 							<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
 							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-							<th onClick={() => setSortBy({ key: 'projectManager' })}>Project manager</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
@@ -62,11 +48,14 @@ const LeaveRequestsTable = () => {
 								<td>{leaveRequest.endDate.slice(0, 10)}</td>
 								<td>{leaveRequest.comment}</td>
 								<td>{leaveRequest.status}</td>
-								<td>{leaveRequest.projectManager}</td>
 								<td>
-									<Button color='#3c8d2f80' text={'Edit'}>
-										Edit
-									</Button>
+									<Button color='#3c8d2f80' text={'Edit'} />
+									{leaveRequest.status === requestStatus.new && (
+										<>
+											<Button color='#3c8d2f' text={'Submit'} onClick={handleChangeStatus('submit')} />
+											<Button color='orangered' text={'Cancel'} onClick={handleChangeStatus('submit')} />
+										</>
+									)}
 								</td>
 							</tr>
 						))}

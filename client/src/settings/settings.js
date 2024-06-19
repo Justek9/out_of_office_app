@@ -31,6 +31,7 @@ export const requestStatus = {
 	new: 'NEW',
 	approved: 'APPROVED',
 	rejected: 'REJECTED',
+	cancelled: 'CANCELLED',
 }
 
 export const projectTypeObj = {

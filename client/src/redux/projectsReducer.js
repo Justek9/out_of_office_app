@@ -30,7 +30,7 @@ export const fetchProjects = () => {
 	}
 }
 
-const ProjectsReducer = (statePart = [], action) => {
+const projectsReducer = (statePart = [], action) => {
 	switch (action.type) {
 		case LOAD_PROJECTS:
 			return [...action.payload]
@@ -50,4 +50,4 @@ const ProjectsReducer = (statePart = [], action) => {
 	}
 }
 
-export default ProjectsReducer
+export default projectsReducer

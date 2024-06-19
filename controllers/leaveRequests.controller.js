@@ -21,7 +21,45 @@ exports.getAll = async (req, res) => {
 
 exports.edit = async (req, res) => {}
 
-exports.changeStatus = async (req, res) => {}
+exports.changeStatus = async (req, res) => {
+	const { status } = req.body
+	const id = req.params.id
+
+	try {
+		const leaveRequest = await prisma.project.findUnique({
+			where: {
+				id: id,
+			},
+		})
+
+		if (leaveRequest) {
+			await prisma.project.update({
+				where: {
+					id: id,
+				},
+				data: {
+					status: status,
+				},
+			})
+
+			const newApprovalRequest = await prisma.approvalRequest.create({
+				data: {
+					leaveRequestID: leaveRequest.id,
+					status: 'NEW',
+					employeeId: id,
+				},
+			})
+
+			res.status(201).json({
+				message: 'Leave request updated and approval request added',
+			})
+		} else {
+			res.status(404).json('Leave request not found')
+		}
+	} catch (err) {
+		res.status(500).json({ error: err.message })
+	}
+}
 
 exports.add = async (req, res) => {
 	const { employeeId, absenceReason, startDate, endDate, comment } = req.body

@@ -99,7 +99,7 @@ function getLeaveRequests() {
 			startDate: new Date('2024-07-01T00:00:00Z'),
 			endDate: new Date('2024-07-10T00:00:00Z'),
 			comment: 'Family trip',
-			status: 'NEW',
+			status: 'SUBMITTED',
 		},
 		{
 			id: 'h8i9j0kl-7m4n-0o5p-6q0r-01s5t8uv9w07',

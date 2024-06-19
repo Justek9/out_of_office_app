@@ -26,9 +26,7 @@ const ProjectsTable = () => {
 
 	const handleSave = () => {
 		setShowModal(false)
-		// const updatedProjects = projects.map(project => (project.id === updatedProject.id ? updatedProject : project))
-		// const dispach
-	}
+			}
 
 	const handleEditClick = project => {
 		setSelectedProject(project)
