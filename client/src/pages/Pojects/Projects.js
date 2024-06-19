@@ -7,6 +7,10 @@ import ProjectsTable from '../../features/ProjectsTable/ProjectsTable'
 const Projects = () => {
 	const [showModal, setShowModal] = useState(false)
 
+	const handleSave = savedProject => {
+		setShowModal(false)
+	}
+
 	return (
 		<>
 			<Header text={'Projects'} />
@@ -24,6 +28,7 @@ const Projects = () => {
 					show={showModal}
 					setShowModal={setShowModal}
 					action='Add'
+					onSave={handleSave}
 				/>
 			)}
 		</>

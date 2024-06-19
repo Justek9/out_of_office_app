@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Button, Modal, Form, FormGroup } from 'react-bootstrap'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { getProjectManagers } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
-import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
@@ -26,14 +25,27 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 
 	const handleChange = e => {
 		const { name, value } = e.target
-		setFormData(prevState => ({ ...prevState, [name]: value }))
+		let id
+		if (name === 'projectManager') {
+			id = getIdBasedOnName(value, projectManagers)
+		}
+
+		name === 'projectManager'
+			? setFormData(prevState => ({
+					...prevState,
+					[name]: value,
+					projectManagerId: id,
+			  }))
+			: setFormData(prevState => ({ ...prevState, [name]: value }))
 	}
 
 	const handleSubmit = () => {
-		const id = getIdBasedOnName(newProject.projectManager, projectManagers)
-		const addProjectData = JSON.stringify({ ...newProject, projectManagerId: id })
-		
-		const editProjectData = JSON.stringify(formData)
+		const idNew = getIdBasedOnName(newProject.projectManager, projectManagers)
+		const startDate = isActionEdit(action) ? new Date(formData.startDate) : new Date(newProject.startDate)
+		const endDate = isActionEdit(action) ? new Date(formData.endDate) : new Date(newProject.endDate)
+
+		const addProjectData = JSON.stringify({ ...newProject, projectManagerId: idNew, startDate, endDate })
+		const editProjectData = JSON.stringify({ ...formData, startDate, endDate })
 
 		const options = {
 			method: isActionEdit(action) ? 'PUT' : 'POST',
@@ -45,9 +57,8 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 		fetch(isActionEdit(action) ? `${API_URL}/projects/${formData.id}` : `${API_URL}/projects`, options)
 			.then(res => {
 				if (res.status === 200) {
-					console.log('jestem')
 					setStatus(fetchStatuses.success)
-					onSave(formData)
+					onSave(isActionEdit(action) ? formData : newProject)
 					handleClose()
 				} else {
 					setStatus(fetchStatuses.serverError)
@@ -131,8 +142,8 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							as='select'
 							name='projectManager'
-							value={isActionEdit(action) ? formData.projectManager : newProject.projectManager}
-							onChange={e => (isActionEdit(action) ? '' : handleAddNew('projectManager', e.target.value))}>
+							value={isActionEdit(action) ? formData.projectManager.fullName : newProject.projectManager}
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectManager', e.target.value))}>
 							<option value=''>Please select</option>
 							{projectManagers.map(pm => (
 								<option key={pm.fullName} value={pm.fullName}>

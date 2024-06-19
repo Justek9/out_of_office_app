@@ -18,7 +18,6 @@ const loggedPersonReducer = (statePart = {}, action) => {
 		case SET_ROLE:
 			return { ...statePart, role: action.payload }
 		case SET_NAME:
-			console.log(action.payload)
 			return { ...statePart, name: action.payload }
 		default:
 			return statePart
