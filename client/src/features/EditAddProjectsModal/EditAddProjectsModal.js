@@ -1,19 +1,12 @@
 import { useState } from 'react'
-import { Button, Modal, Form } from 'react-bootstrap'
+import { Button, Modal, Form, FormGroup } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { addEmployee, fetchEmployees, getPeoplePartners } from '../../redux/employeesReducer'
+import { getProjectManagers } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import {
-	rolesArray as positions,
-	subdivisionsArray as subdivisions,
-	statusesArray as statuses,
-	subdivisionsObj,
-	rolesObj,
-	statusesObj,
-	fetchStatuses,
-} from '../../settings/settings'
-import { isActionEdit } from '../../settings/utils'
+
+import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
+import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 
 const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => {
 	const [formData, setFormData] = useState({ ...project })
@@ -27,15 +20,40 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 		projectManager: '',
 	})
 
+	const [status, setStatus] = useState()
+
+	const projectManagers = useSelector(state => getProjectManagers(state))
+
 	const handleChange = e => {
 		const { name, value } = e.target
 		setFormData(prevState => ({ ...prevState, [name]: value }))
 	}
 
 	const handleSubmit = () => {
-		// heśli edit to fetch z project, jesli add to fetch z dodaniem
-		onSave(formData)
-		handleClose()
+		const id = getIdBasedOnName(newProject.projectManager, projectManagers)
+		const addProjectData = JSON.stringify({ ...newProject, projectManagerId: id })
+		
+		const editProjectData = JSON.stringify(formData)
+
+		const options = {
+			method: isActionEdit(action) ? 'PUT' : 'POST',
+			body: isActionEdit(action) ? editProjectData : addProjectData,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+		fetch(isActionEdit(action) ? `${API_URL}/projects/${formData.id}` : `${API_URL}/projects`, options)
+			.then(res => {
+				if (res.status === 200) {
+					console.log('jestem')
+					setStatus(fetchStatuses.success)
+					onSave(formData)
+					handleClose()
+				} else {
+					setStatus(fetchStatuses.serverError)
+				}
+			})
+			.catch(() => setStatus('serverError'))
 	}
 
 	const handleAddNew = (field, value) => {
@@ -52,18 +70,24 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 					<Form.Group>
 						<Form.Label>Project Type</Form.Label>
 						<Form.Control
-							type='text'
+							as='select'
 							name='projectType'
 							value={isActionEdit(action) ? formData.projectType : newProject.projectType}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectType', e.target.value))}
-						/>
+							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectType', e.target.value))}>
+							<option value=''>Please select</option>
+							{projectTypes.map(type => (
+								<option key={type} value={type}>
+									{type}
+								</option>
+							))}
+						</Form.Control>
 					</Form.Group>
 					<Form.Group>
 						<Form.Label>Start Date</Form.Label>
 						<Form.Control
 							type='date'
 							name='startDate'
-							value={formData.startDate}
+							value={isActionEdit(action) ? formData.startDate : newProject.startDate}
 							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('startDate', e.target.value))}
 						/>
 					</Form.Group>
@@ -72,7 +96,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							type='date'
 							name='endDate'
-							value={formData.endDate}
+							value={isActionEdit(action) ? formData.endDate : newProject.endDate}
 							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('endDate', e.target.value))}
 						/>
 					</Form.Group>
@@ -81,27 +105,41 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							type='text'
 							name='comment'
-							value={formData.comment}
+							value={isActionEdit(action) ? formData.comment : newProject.comment}
 							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('comment', e.target.value))}
 						/>
 					</Form.Group>
 					<Form.Group>
 						<Form.Label>Status</Form.Label>
 						<Form.Control
-							type='text'
+							as='select'
 							name='status'
-							value={formData.status}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('status', e.target.value))}
-						/>
+							value={isActionEdit(action) ? formData.status : newProject.status}
+							readOnly={isActionEdit(action) ? true : false}
+							onChange={e => (isActionEdit(action) ? '' : handleAddNew('status', e.target.value))}>
+							<option value=''>Please select</option>
+
+							{statusesArray.map(status => (
+								<option key={status} value={status}>
+									{status}
+								</option>
+							))}
+						</Form.Control>
 					</Form.Group>
 					<Form.Group>
 						<Form.Label>Project Manager</Form.Label>
 						<Form.Control
-							type='text'
+							as='select'
 							name='projectManager'
-							value={formData.projectManager.fullName}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectManager', e.target.value))}
-						/>
+							value={isActionEdit(action) ? formData.projectManager : newProject.projectManager}
+							onChange={e => (isActionEdit(action) ? '' : handleAddNew('projectManager', e.target.value))}>
+							<option value=''>Please select</option>
+							{projectManagers.map(pm => (
+								<option key={pm.fullName} value={pm.fullName}>
+									{pm.fullName}
+								</option>
+							))}
+						</Form.Control>
 					</Form.Group>
 				</Form>
 			</Modal.Body>

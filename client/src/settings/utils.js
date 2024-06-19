@@ -13,3 +13,9 @@ export const sortASC = (array, sortBy) => {
 export const isActionEdit = action => {
 	return action === 'Edit' ? true : false
 }
+
+export const getIdBasedOnName = (name, array) => {
+	const person = array.find(person => person.fullName.trim().toUpperCase() === name.trim().toUpperCase())
+	if (person) return person.id
+	else return null
+}

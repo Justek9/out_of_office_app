@@ -13,7 +13,7 @@ import {
 	statusesObj,
 	fetchStatuses,
 } from '../../settings/settings'
-import { isActionEdit } from '../../settings/utils'
+import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 
 const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
 	const [status, setStatus] = useState(null)
@@ -30,18 +30,12 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		outOfOfficeBalance: '',
 	})
 
-	const getPeoplePartnerId = name => {
-		const partner = peoplePartners.find(partner => partner.fullName.trim().toUpperCase() === name.trim().toUpperCase())
-		if (partner) return partner.id
-		else return null
-	}
-
 	const handleAddNew = (field, value) => {
 		setNewEmployee({ ...newEmployee, [field]: value })
 	}
 
 	const handleSaveAddNew = () => {
-		const peoplePartnerId = getPeoplePartnerId(newEmployee.peoplePartner)
+		const peoplePartnerId = getIdBasedOnName(newEmployee.peoplePartner, peoplePartners)
 
 		const options = {
 			method: 'POST',

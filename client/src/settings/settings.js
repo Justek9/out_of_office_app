@@ -33,15 +33,19 @@ export const requestStatus = {
 	rejected: 'REJECTED',
 }
 
-export const projectType = {
+export const projectTypeObj = {
 	research: 'RESEARCH',
 	modify: 'MODIFY',
 	update: 'UPDATE',
 	installation: 'INSTALLATION',
 }
 
-export const absenceReason = {
+export const projectTypesArr = Object.values(projectTypeObj)
+
+export const absenceReasonObj = {
 	sickLeave: 'SICK_LEAVE',
 	holiday: 'HOLIDAY',
 	other: 'OTHER',
 }
+
+export const absenceReasonArr = Object.values(absenceReasonObj)
