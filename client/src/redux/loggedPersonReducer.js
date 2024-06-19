@@ -2,6 +2,10 @@ export const getRole = ({ loggedPerson }) => {
 	return loggedPerson.role
 }
 
+export const getName = ({ loggedPerson }) => {
+	return loggedPerson.name
+}
+
 const createActionName = actionName => `app/role/${actionName}`
 const SET_ROLE = createActionName('SET_ROLE')
 const SET_NAME = createActionName('SET_NAME')

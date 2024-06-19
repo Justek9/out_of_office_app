@@ -6,11 +6,15 @@ import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { fetchStatuses } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
+import EditAddProjectModal from '../EditAddProjectsModal/EditAddProjectsModal'
 
 const ProjectsTable = () => {
 	const [projects, setProjects] = useState([])
 	const [sortBy, setSortBy] = useState({ key: 'projectType' })
 	const [status, setStatus] = useState(fetchStatuses.null)
+	const [selectedProject, setSelectedProject] = useState(null)
+	const [showModal, setShowModal] = useState(false)
+
 	const sortedData = sortASC(projects, sortBy)
 
 	useEffect(() => {
@@ -31,6 +35,15 @@ const ProjectsTable = () => {
 			})
 	}, [])
 
+	const handleSave = updatedProject => {
+		const updatedProjects = projects.map(project => (project.id === updatedProject.id ? updatedProject : project))
+		setProjects(updatedProjects)
+	}
+
+	const handleEditClick = project => {
+		setSelectedProject(project)
+		setShowModal(true)
+	}
 	return (
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
@@ -61,7 +74,7 @@ const ProjectsTable = () => {
 								<td>{project.status}</td>
 								<td>{project.projectManager.fullName}</td>
 								<td>
-									<Button color='#3c8d2f80' text={'Edit'}>
+									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(project)}>
 										Edit
 									</Button>
 								</td>
@@ -69,6 +82,15 @@ const ProjectsTable = () => {
 						))}
 					</tbody>
 				</Table>
+			)}
+			{selectedProject && (
+				<EditAddProjectModal
+					show={showModal}
+					handleClose={() => setShowModal(false)}
+					project={selectedProject}
+					onSave={handleSave}
+					action={'Edit'}
+				/>
 			)}
 		</>
 	)

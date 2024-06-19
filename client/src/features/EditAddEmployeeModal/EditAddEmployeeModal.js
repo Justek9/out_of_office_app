@@ -13,6 +13,7 @@ import {
 	statusesObj,
 	fetchStatuses,
 } from '../../settings/settings'
+import { isActionEdit } from '../../settings/utils'
 
 const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
 	const [status, setStatus] = useState(null)
@@ -28,10 +29,6 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		peoplePartner: 'Alice Brown',
 		outOfOfficeBalance: '',
 	})
-
-	const isActionEdit = action => {
-		return action === 'Edit' ? true : false
-	}
 
 	const getPeoplePartnerId = name => {
 		const partner = peoplePartners.find(partner => partner.fullName.trim().toUpperCase() === name.trim().toUpperCase())

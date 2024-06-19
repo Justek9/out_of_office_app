@@ -1,3 +1,3 @@
-const initialState = { employees: [], loggedPerson: { role: 'EMPLOYEE', name: 'John Doe' } }
+const initialState = { employees: [], loggedPerson: { role: '', name: '' } }
 
 export default initialState

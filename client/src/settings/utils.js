@@ -9,3 +9,7 @@ export const sortASC = (array, sortBy) => {
 		}
 	}))
 }
+
+export const isActionEdit = action => {
+	return action === 'Edit' ? true : false
+}

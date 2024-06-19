@@ -26,3 +26,22 @@ export const fetchStatuses = {
 	success: 'success',
 	null: null,
 }
+
+export const requestStatus = {
+	new: 'NEW',
+	approved: 'APPROVED',
+	rejected: 'REJECTED',
+}
+
+export const projectType = {
+	research: 'RESEARCH',
+	modify: 'MODIFY',
+	update: 'UPDATE',
+	installation: 'INSTALLATION',
+}
+
+export const absenceReason = {
+	sickLeave: 'SICK_LEAVE',
+	holiday: 'HOLIDAY',
+	other: 'OTHER',
+}

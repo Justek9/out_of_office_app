@@ -10,6 +10,7 @@ import Employees from './pages/Employees/Employees'
 import Projects from './pages/Pojects/Projects'
 import LeaveRequests from './pages/LeaveRequests/LeaveRequests'
 import ApprovalRequests from './pages/ApprovalRequests/ApprovalRequests'
+import TopBar from './layout/TopBar/TopBar'
 
 function App() {
 	const dispatch = useDispatch()
@@ -18,6 +19,7 @@ function App() {
 
 	return (
 		<Container>
+			<TopBar />
 			<NavBar />
 			<Routes>
 				<Route path='/' element={<Login />}></Route>

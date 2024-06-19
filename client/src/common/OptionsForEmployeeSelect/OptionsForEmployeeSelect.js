@@ -8,6 +8,8 @@ const OptionsForEmployeeNameSelect = ({ array, selectNameHandler }) => {
 				onChange={e => selectNameHandler(e)}
 				className='form-select form-select-lg mb-3'
 				aria-label='.form-select-lg example'>
+				<option value=''>Please select</option>
+
 				{array.map((employee, i) => (
 					<option key={i} value={employee.fullName}>
 						{employee.fullName}

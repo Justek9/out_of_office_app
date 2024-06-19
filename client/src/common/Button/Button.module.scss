@@ -15,4 +15,7 @@
 		background-color: $color-primary-light;
 		transition: $transition;
 	}
+	&:disabled {
+		cursor: not-allowed;
+	}
 }
