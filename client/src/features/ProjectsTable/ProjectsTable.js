@@ -3,53 +3,64 @@ import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { fetchStatuses } from '../../settings/settings'
+import { fetchStatuses, statusesObj } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
 import EditAddProjectModal from '../EditAddProjectsModal/EditAddProjectsModal'
+import { deactivateProject, fetchProjects, getProjects } from '../../redux/projectsReducer'
+import { useDispatch, useSelector } from 'react-redux'
 
 const ProjectsTable = () => {
-	const [projects, setProjects] = useState([])
+	const projects = useSelector(state => getProjects(state))
 	const [sortBy, setSortBy] = useState({ key: 'projectType' })
 	const [status, setStatus] = useState(fetchStatuses.null)
 	const [selectedProject, setSelectedProject] = useState(null)
 	const [showModal, setShowModal] = useState(false)
+	const dispatch = useDispatch()
 
 	const sortedData = sortASC(projects, sortBy)
 
 	useEffect(() => {
-		setStatus(fetchStatuses.loading)
-
-		fetch(`${API_URL}/projects`)
-			.then(res => {
-				if (res.status === 200) {
-					setStatus(fetchStatuses.success)
-					return res.json()
-				}
-			})
-			.then(projects => {
-				setProjects(projects)
-			})
-			.catch(error => {
-				setStatus(fetchStatuses.serverError)
-			})
+		dispatch(fetchProjects())
 	}, [])
 
-	const handleSave = updatedProject => {
-		const updatedProjects = projects.map(project => (project.id === updatedProject.id ? updatedProject : project))
-		setProjects(updatedProjects)
+	const handleSave = () => {
+		setShowModal(false)
+		// const updatedProjects = projects.map(project => (project.id === updatedProject.id ? updatedProject : project))
+		// const dispach
 	}
 
 	const handleEditClick = project => {
 		setSelectedProject(project)
 		setShowModal(true)
 	}
+
+	const handleDeactivate = id => {
+		const options = {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+		fetch(`${API_URL}/projects/${id}`, options)
+			.then(res => {
+				if (res.status === 200) {
+					setStatus(fetchStatuses.success)
+					dispatch(deactivateProject({ id }))
+					fetchProjects()
+				} else {
+					setStatus(fetchStatuses.serverError)
+				}
+			})
+			.catch(e => setStatus(fetchStatuses.serverError))
+	}
+
 	return (
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 			{status === fetchStatuses.serverError && <ErrorMessage />}
 
-			{status === fetchStatuses.success && (
+			{projects.length !== 0 && (
 				<Table responsive='sm'>
 					<thead>
 						<tr>
@@ -77,13 +88,18 @@ const ProjectsTable = () => {
 									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(project)}>
 										Edit
 									</Button>
+									{project.status !== statusesObj.inactive && (
+										<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(project.id)}>
+											Deactivate
+										</Button>
+									)}
 								</td>
 							</tr>
 						))}
 					</tbody>
 				</Table>
 			)}
-			{selectedProject && (
+			{selectedProject && showModal && (
 				<EditAddProjectModal
 					show={showModal}
 					handleClose={() => setShowModal(false)}

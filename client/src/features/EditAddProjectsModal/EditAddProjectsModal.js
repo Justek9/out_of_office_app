@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Button, Modal, Form, FormGroup } from 'react-bootstrap'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getProjectManagers } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 
 import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
+import { addProject, fetchProjects, updateProject } from '../../redux/projectsReducer'
 
 const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => {
 	const [formData, setFormData] = useState({ ...project })
@@ -20,6 +21,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 	})
 
 	const [status, setStatus] = useState()
+	const dispatch = useDispatch()
 
 	const projectManagers = useSelector(state => getProjectManagers(state))
 
@@ -58,13 +60,14 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 			.then(res => {
 				if (res.status === 200) {
 					setStatus(fetchStatuses.success)
-					onSave(isActionEdit(action) ? formData : newProject)
+					isActionEdit(action) ? dispatch(updateProject(formData)) : dispatch(addProject(newProject))
 					handleClose()
 				} else {
 					setStatus(fetchStatuses.serverError)
 				}
 			})
-			.catch(() => setStatus('serverError'))
+
+			.catch(() => setStatus(fetchStatuses.serverError))
 	}
 
 	const handleAddNew = (field, value) => {

@@ -6,7 +6,7 @@ import EditEmployeeModal from '../EditAddEmployeeModal/EditAddEmployeeModal'
 import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { fetchStatuses } from '../../settings/settings'
+import { fetchStatuses, statusesObj } from '../../settings/settings'
 import { sortASC } from '../../settings/utils'
 
 const EmployeesTable = () => {
@@ -84,41 +84,45 @@ const EmployeesTable = () => {
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 
-			<Table responsive='sm'>
-				<thead>
-					<tr>
-						<th>No.</th>
-						<th onClick={() => setSortBy({ key: 'fullName' })}>Name</th>
-						<th onClick={() => setSortBy({ key: 'subdivision' })}>Subdivision</th>
-						<th onClick={() => setSortBy({ key: 'position' })}>Position</th>
-						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-						<th onClick={() => setSortBy({ key: 'peoplePartner.fullName' })}>People Partner</th>
-						<th onClick={() => setSortBy({ key: 'outOfOfficeBalance' })}>Out of office balance</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{sortedData.map((employee, i) => (
-						<tr key={i}>
-							<td>{i + 1}</td>
-							<td>{employee.fullName}</td>
-							<td>{employee.subdivision}</td>
-							<td>{employee.position}</td>
-							<td>{employee.status}</td>
-							<td>{employee.peoplePartner?.fullName}</td>
-							<td>{employee.outOfOfficeBalance}</td>
-							<td>
-								<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(employee)}>
-									Edit
-								</Button>
-								<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>
-									Deactivate
-								</Button>
-							</td>
+			{employees.length !== 0 && (
+				<Table responsive='sm'>
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th onClick={() => setSortBy({ key: 'fullName' })}>Name</th>
+							<th onClick={() => setSortBy({ key: 'subdivision' })}>Subdivision</th>
+							<th onClick={() => setSortBy({ key: 'position' })}>Position</th>
+							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
+							<th onClick={() => setSortBy({ key: 'peoplePartner.fullName' })}>People Partner</th>
+							<th onClick={() => setSortBy({ key: 'outOfOfficeBalance' })}>Out of office balance</th>
+							<th>Actions</th>
 						</tr>
-					))}
-				</tbody>
-			</Table>
+					</thead>
+					<tbody>
+						{sortedData.map((employee, i) => (
+							<tr key={i}>
+								<td>{i + 1}</td>
+								<td>{employee.fullName}</td>
+								<td>{employee.subdivision}</td>
+								<td>{employee.position}</td>
+								<td>{employee.status}</td>
+								<td>{employee.peoplePartner?.fullName}</td>
+								<td>{employee.outOfOfficeBalance}</td>
+								<td>
+									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(employee)}>
+										Edit
+									</Button>
+									{employee.status !== statusesObj.inactive && (
+										<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>
+											Deactivate
+										</Button>
+									)}
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</Table>
+			)}
 
 			{currentEmployee && (
 				<EditEmployeeModal

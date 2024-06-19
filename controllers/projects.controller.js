@@ -20,11 +20,8 @@ exports.getAll = async (req, res) => {
 }
 
 exports.edit = async (req, res) => {
-
 	try {
 		let { projectType, startDate, endDate, comment, status, projectManagerId } = req.body
-
-		console.log(projectType, startDate, endDate, comment, status, projectManagerId);
 
 		const id = req.params.id
 
@@ -56,13 +53,38 @@ exports.edit = async (req, res) => {
 		res.status(500).json({ error: err.message })
 	}
 }
-exports.changeStatus = async (req, res) => {}
+
+exports.changeStatus = async (req, res) => {
+	try {
+		const id = req.params.id
+
+		const project = await prisma.project.findUnique({
+			where: {
+				id: id,
+			},
+		})
+
+		if (project) {
+			await prisma.project.update({
+				where: {
+					id: id,
+				},
+				data: {
+					status: 'INACTIVE',
+				},
+			})
+			res.send({ message: 'Project deactivated' })
+		} else {
+			res.status(404).json('Project not found')
+		}
+	} catch (err) {
+		res.status(500).json({ error: err.message })
+	}
+}
 
 exports.add = async (req, res) => {
-	console.log('jestem w add')
 	try {
 		let { projectType, startDate, endDate, comment, status, projectManagerId } = req.body
-		console.log(projectType, startDate, endDate, comment, status, projectManagerId)
 
 		if (projectType && startDate && endDate && status && projectManagerId) {
 			await prisma.project.create({

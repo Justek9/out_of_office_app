@@ -3,10 +3,12 @@ import thunk from 'redux-thunk'
 import initialState from './initialState'
 import employeesReducer from './employeesReducer'
 import loggedPersonReducer from './loggedPersonReducer'
+import ProjectsReducer from './projectsReducer'
 
 const subreducers = {
 	loggedPerson: loggedPersonReducer,
 	employees: employeesReducer,
+	projects: ProjectsReducer
 }
 
 const reducer = combineReducers(subreducers)

@@ -7,7 +7,7 @@ import ProjectsTable from '../../features/ProjectsTable/ProjectsTable'
 const Projects = () => {
 	const [showModal, setShowModal] = useState(false)
 
-	const handleSave = savedProject => {
+	const handleSave = () => {
 		setShowModal(false)
 	}
 
