@@ -37,7 +37,6 @@ const leaveRequestsReducer = (statePart = [], action) => {
 		case UPDATE_LEAVE_REQUEST:
 			return statePart.map(request => (request.id === action.payload.id ? { ...action.payload } : request))
 		case CHANGE_STATUS_LEAVE_REQUEST:
-			console.log(action.payload)
 			return statePart.map(request =>
 				request.id === action.payload.id ? { ...request, status: action.payload.status } : request
 			)

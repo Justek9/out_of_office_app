@@ -6,13 +6,10 @@ import { fetchStatuses, requestStatus } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-	changeStatusLeaveRequest,
-	fetchLeaveRequests,
-	getLeaveRequests,
-	loadLeaveRequests,
-} from '../../redux/leaveRequestsReducer'
+import { changeStatusLeaveRequest, fetchLeaveRequests, getLeaveRequests } from '../../redux/leaveRequestsReducer'
 import { API_URL } from '../../settings/config'
+import EditAddLeaveRequestModal from '../EditAddLeaveRequestModal/EditAddLeaveRequestModal'
+import { getName } from '../../redux/loggedPersonReducer'
 
 const LeaveRequestsTable = () => {
 	const leaveRequests = useSelector(state => getLeaveRequests(state))
@@ -21,8 +18,24 @@ const LeaveRequestsTable = () => {
 	const sortedData = sortASC(leaveRequests, sortBy)
 	const dispatch = useDispatch()
 	const [currentLeaveRequest, setCurrentLeaveRequest] = useState(null)
+	const [showModal, setShowModal] = useState(false)
+	const [isEditing, setIsEditing] = useState(false)
+	const loggedEmployee = useSelector(state => getName(state))
+	const [newLeaveRequest, setNewLeaveRequest] = useState({
+		employee: loggedEmployee,
+		absenceReason: '',
+		startDate: '',
+		endDate: '',
+		comment: '',
+	})
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
+
+	const handleEdit = leaveRequest => {
+		setCurrentLeaveRequest(leaveRequest)
+		setShowModal(true)
+		setIsEditing(true)
+	}
 
 	const handleChangeStatus = (leaveRequest, status) => {
 		setCurrentLeaveRequest(old => leaveRequest)
@@ -48,6 +61,10 @@ const LeaveRequestsTable = () => {
 			.catch(() => setStatus(fetchStatuses.serverError))
 	}
 
+	const handleFormChange = e => {
+		const { name, value } = e.target
+		setCurrentLeaveRequest(prevState => ({ ...prevState, [name]: value }))
+	}
 	return (
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
@@ -78,7 +95,7 @@ const LeaveRequestsTable = () => {
 								<td>{leaveRequest.comment}</td>
 								<td>{leaveRequest.status}</td>
 								<td>
-									<Button color='#3c8d2f80' text={'Edit'} />
+									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEdit(leaveRequest)} />
 									{leaveRequest.status === requestStatus.new && (
 										<>
 											<Button
@@ -98,6 +115,16 @@ const LeaveRequestsTable = () => {
 						))}
 					</tbody>
 				</Table>
+			)}
+			{showModal && (
+				<EditAddLeaveRequestModal
+					setShowModal={setShowModal}
+					formData={currentLeaveRequest}
+					showModal={showModal}
+					handleFormChange={handleFormChange}
+					isEditing={isEditing}
+					newLeaveRequest={newLeaveRequest}
+				/>
 			)}
 		</>
 	)

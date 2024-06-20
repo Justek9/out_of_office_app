@@ -101,7 +101,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							type='date'
 							name='startDate'
-							value={isActionEdit(action) ? formData.startDate : newProject.startDate}
+							value={isActionEdit(action) ? formData.startDate.slice(0, 10) : newProject.startDate}
 							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('startDate', e.target.value))}
 						/>
 					</Form.Group>
@@ -110,7 +110,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							type='date'
 							name='endDate'
-							value={isActionEdit(action) ? formData.endDate : newProject.endDate}
+							value={isActionEdit(action) ? formData.endDate.slice(0, 10) : newProject.endDate}
 							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('endDate', e.target.value))}
 						/>
 					</Form.Group>
