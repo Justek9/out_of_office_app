@@ -6,7 +6,13 @@ import { fetchStatuses, requestStatus } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchLeaveRequests, getLeaveRequests, loadLeaveRequests } from '../../redux/leaveRequestsReducer'
+import {
+	changeStatusLeaveRequest,
+	fetchLeaveRequests,
+	getLeaveRequests,
+	loadLeaveRequests,
+} from '../../redux/leaveRequestsReducer'
+import { API_URL } from '../../settings/config'
 
 const LeaveRequestsTable = () => {
 	const leaveRequests = useSelector(state => getLeaveRequests(state))
@@ -14,10 +20,33 @@ const LeaveRequestsTable = () => {
 	const [status, setStatus] = useState(fetchStatuses.null)
 	const sortedData = sortASC(leaveRequests, sortBy)
 	const dispatch = useDispatch()
+	const [currentLeaveRequest, setCurrentLeaveRequest] = useState(null)
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
 
-	const handleChangeStatus = () => {}
+	const handleChangeStatus = (leaveRequest, status) => {
+		setCurrentLeaveRequest(old => leaveRequest)
+		setStatus(fetchStatuses.loading)
+
+		const options = {
+			method: 'PATCH',
+			body: JSON.stringify({ status: status }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+
+		fetch(`${API_URL}/leaveRequests/${leaveRequest.id}`, options)
+			.then(res => {
+				if (res.status === 200) {
+					setStatus(fetchStatuses.success)
+					dispatch(changeStatusLeaveRequest({ id: leaveRequest.id, status }))
+				} else {
+					setStatus(fetchStatuses.serverError)
+				}
+			})
+			.catch(() => setStatus(fetchStatuses.serverError))
+	}
 
 	return (
 		<>
@@ -52,8 +81,16 @@ const LeaveRequestsTable = () => {
 									<Button color='#3c8d2f80' text={'Edit'} />
 									{leaveRequest.status === requestStatus.new && (
 										<>
-											<Button color='#3c8d2f' text={'Submit'} onClick={handleChangeStatus('submit')} />
-											<Button color='orangered' text={'Cancel'} onClick={handleChangeStatus('submit')} />
+											<Button
+												color='#3c8d2f'
+												text={'Submit'}
+												onClick={() => handleChangeStatus(leaveRequest, requestStatus.submitted)}
+											/>
+											<Button
+												color='orangered'
+												text={'Cancel'}
+												onClick={() => handleChangeStatus(leaveRequest, requestStatus.cancelled)}
+											/>
 										</>
 									)}
 								</td>

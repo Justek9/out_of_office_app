@@ -7,7 +7,7 @@ export const getLeaveRequests = ({ leaveRequests }) => {
 const createActionName = actionName => `app/LeaveRequest/${actionName}`
 const LOAD_LEAVE_REQUESTS = createActionName('LOAD_LEAVE_REQUESTS')
 const UPDATE_LEAVE_REQUEST = createActionName('UPDATE_LEAVE_REQUEST')
-const CHANGE_STATUS_LEAVE_REQUEST = createActionName('DEACTIVATE_LEAVE_REQUEST')
+const CHANGE_STATUS_LEAVE_REQUEST = createActionName('CHANGE_STATUS_LEAVE_REQUEST')
 const ADD_LEAVE_REQUEST = createActionName('ADD_LEAVE_REQUEST')
 
 export const loadLeaveRequests = payload => ({ type: LOAD_LEAVE_REQUESTS, payload })
@@ -37,6 +37,7 @@ const leaveRequestsReducer = (statePart = [], action) => {
 		case UPDATE_LEAVE_REQUEST:
 			return statePart.map(request => (request.id === action.payload.id ? { ...action.payload } : request))
 		case CHANGE_STATUS_LEAVE_REQUEST:
+			console.log(action.payload)
 			return statePart.map(request =>
 				request.id === action.payload.id ? { ...request, status: action.payload.status } : request
 			)

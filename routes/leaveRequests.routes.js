@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const leaveRequests = require('../controllers/leaveRequests.controller')
+const leaveRequests = require("../controllers/leaveRequests.controller")
 
 router.get('/leaveRequests', leaveRequests.getAll)
 router.put('/leaveRequests/:id', leaveRequests.edit)

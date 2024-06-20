@@ -26,14 +26,14 @@ exports.changeStatus = async (req, res) => {
 	const id = req.params.id
 
 	try {
-		const leaveRequest = await prisma.project.findUnique({
+		const leaveRequest = await prisma.leaveRequest.findUnique({
 			where: {
 				id: id,
 			},
 		})
 
 		if (leaveRequest) {
-			await prisma.project.update({
+			await prisma.leaveRequest.update({
 				where: {
 					id: id,
 				},
@@ -41,15 +41,7 @@ exports.changeStatus = async (req, res) => {
 					status: status,
 				},
 			})
-
-			const newApprovalRequest = await prisma.approvalRequest.create({
-				data: {
-					leaveRequestID: leaveRequest.id,
-					status: 'NEW',
-					employeeId: id,
-				},
-			})
-
+			
 			res.status(201).json({
 				message: 'Leave request updated and approval request added',
 			})
