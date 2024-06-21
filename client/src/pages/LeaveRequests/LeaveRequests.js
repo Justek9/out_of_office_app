@@ -10,7 +10,6 @@ const LeaveRequests = () => {
 	const [showModal, setShowModal] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const loggedEmployee = useSelector(state => getName(state))
-	console.log(loggedEmployee)
 	const [newLeaveRequest, setNewLeaveRequest] = useState({
 		employee: loggedEmployee,
 		absenceReason: '',
@@ -24,7 +23,7 @@ const LeaveRequests = () => {
 		setNewLeaveRequest(prevState => ({ ...prevState, [name]: value }))
 	}
 
-	
+
 	return (
 		<>
 			<Header text={'Leave Requests'} />

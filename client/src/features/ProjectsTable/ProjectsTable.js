@@ -26,7 +26,7 @@ const ProjectsTable = () => {
 
 	const handleSave = () => {
 		setShowModal(false)
-			}
+	}
 
 	const handleEditClick = project => {
 		setSelectedProject(project)
@@ -44,8 +44,7 @@ const ProjectsTable = () => {
 			.then(res => {
 				if (res.status === 200) {
 					setStatus(fetchStatuses.success)
-					dispatch(deactivateProject({ id }))
-					fetchProjects()
+					dispatch(fetchProjects())
 				} else {
 					setStatus(fetchStatuses.serverError)
 				}

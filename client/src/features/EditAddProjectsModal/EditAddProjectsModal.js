@@ -60,7 +60,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 			.then(res => {
 				if (res.status === 200) {
 					setStatus(fetchStatuses.success)
-					isActionEdit(action) ? dispatch(updateProject(formData)) : dispatch(addProject(newProject))
+					dispatch(fetchProjects())
 					handleClose()
 				} else {
 					setStatus(fetchStatuses.serverError)

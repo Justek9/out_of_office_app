@@ -41,6 +41,7 @@ const leaveRequestsReducer = (statePart = [], action) => {
 				request.id === action.payload.id ? { ...request, status: action.payload.status } : request
 			)
 		case ADD_LEAVE_REQUEST:
+
 			return [
 				...statePart,
 				{

@@ -16,8 +16,10 @@ export const setName = payload => ({ type: SET_NAME, payload })
 const loggedPersonReducer = (statePart = {}, action) => {
 	switch (action.type) {
 		case SET_ROLE:
+			localStorage.setItem('role', action.payload)
 			return { ...statePart, role: action.payload }
 		case SET_NAME:
+			localStorage.setItem('name', action.payload)
 			return { ...statePart, name: action.payload }
 		default:
 			return statePart

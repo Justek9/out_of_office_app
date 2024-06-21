@@ -12,6 +12,8 @@ const TopBar = () => {
 	const dispatch = useDispatch()
 
 	const handleLogOut = () => {
+		localStorage.removeItem('name')
+		localStorage.removeItem('role')
 		dispatch(setRole(''))
 		dispatch(setName(''))
 		navigate('/')

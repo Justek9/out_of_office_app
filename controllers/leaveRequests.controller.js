@@ -20,12 +20,9 @@ exports.getAll = async (req, res) => {
 }
 
 exports.edit = async (req, res) => {
-	console.log('jestem w edit')
 	try {
 		let { absenceReason, startDate, endDate, comment } = req.body
-
 		const id = req.params.id
-
 		const leaveRequest = await prisma.leaveRequest.findUnique({
 			where: {
 				id: id,
@@ -54,7 +51,7 @@ exports.edit = async (req, res) => {
 }
 
 exports.changeStatus = async (req, res) => {
-	const { status } = req.body
+	const { status, employeeId } = req.body
 	const id = req.params.id
 
 	try {
@@ -74,6 +71,16 @@ exports.changeStatus = async (req, res) => {
 				},
 			})
 
+			if (status === 'SUBMITTED') {
+				const newApprovalRequest = await prisma.approvalRequest.create({
+					data: {
+						leaveRequestID: leaveRequest.id,
+						status: 'NEW',
+						employeeId: employeeId,
+					},
+				})
+			}
+
 			res.status(201).json({
 				message: 'Leave request updated and approval request added',
 			})
@@ -86,7 +93,6 @@ exports.changeStatus = async (req, res) => {
 }
 
 exports.add = async (req, res) => {
-	console.log('jestem w add')
 	const { absenceReason, startDate, endDate, comment, employeeId } = req.body
 
 	try {

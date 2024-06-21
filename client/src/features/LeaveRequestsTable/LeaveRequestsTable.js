@@ -30,7 +30,7 @@ const LeaveRequestsTable = () => {
 	})
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
-
+	console.log(currentLeaveRequest)
 	const handleEdit = leaveRequest => {
 		setCurrentLeaveRequest(leaveRequest)
 		setShowModal(true)
@@ -40,10 +40,9 @@ const LeaveRequestsTable = () => {
 	const handleChangeStatus = (leaveRequest, status) => {
 		setCurrentLeaveRequest(old => leaveRequest)
 		setStatus(fetchStatuses.loading)
-
 		const options = {
 			method: 'PATCH',
-			body: JSON.stringify({ status: status }),
+			body: JSON.stringify({ status: status, employeeId: leaveRequest.employee.id }),
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -51,9 +50,9 @@ const LeaveRequestsTable = () => {
 
 		fetch(`${API_URL}/leaveRequests/${leaveRequest.id}`, options)
 			.then(res => {
-				if (res.status === 200) {
+				if (res.status === 200 || res.status === 201) {
 					setStatus(fetchStatuses.success)
-					dispatch(changeStatusLeaveRequest({ id: leaveRequest.id, status }))
+					dispatch(fetchLeaveRequests())
 				} else {
 					setStatus(fetchStatuses.serverError)
 				}
@@ -124,6 +123,8 @@ const LeaveRequestsTable = () => {
 					handleFormChange={handleFormChange}
 					isEditing={isEditing}
 					newLeaveRequest={newLeaveRequest}
+					status={status}
+					setStatus={setStatus}
 				/>
 			)}
 		</>

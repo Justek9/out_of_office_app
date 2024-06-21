@@ -1,20 +1,25 @@
 import { Button, Form, Modal } from 'react-bootstrap'
-import { absenceReasonArr } from '../../settings/settings'
+import { absenceReasonArr, fetchStatuses } from '../../settings/settings'
 import { API_URL } from '../../settings/config'
 import { getIdBasedOnName } from '../../settings/utils'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getAllEmployees } from '../../redux/employeesReducer'
+import { addLeaveRequest, fetchLeaveRequests, updateLeaveRequest } from '../../redux/leaveRequestsReducer'
 
 const EditAddLeaveRequestModal = ({
 	showModal,
 	setShowModal,
 	formData,
 	isEditing,
-	dispatch,
+	// dispatch,
 	newLeaveRequest,
 	handleFormChange,
+	status,
+	setStatus,
 }) => {
 	const employees = useSelector(getAllEmployees)
+	const dispatch = useDispatch()
+
 	const handleSubmit = () => {
 		const employeeId = getIdBasedOnName(newLeaveRequest.employee, employees)
 		const startDate = isEditing ? new Date(formData.startDate) : new Date(newLeaveRequest.startDate)
@@ -32,16 +37,16 @@ const EditAddLeaveRequestModal = ({
 		}
 		fetch(isEditing ? `${API_URL}/leaveRequests/${formData.id}` : `${API_URL}/leaveRequests`, options)
 			.then(res => {
-				if (res.status === 201) {
-					// setStatus(fetchStatuses.success)
-					console.log('jestem')
+				if (res.status === 201 || res.status == 200) {
+					setStatus(fetchStatuses.success)
+					dispatch(fetchLeaveRequests())
 					setShowModal(false)
 				} else {
-					// setStatus(fetchStatuses.serverError)
+					setStatus(fetchStatuses.serverError)
 				}
 			})
 
-			.catch(err => console.log(err))
+			.catch(err => fetchStatuses.serverError)
 	}
 
 	return (
