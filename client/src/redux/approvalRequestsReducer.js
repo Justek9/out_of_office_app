@@ -15,7 +15,7 @@ export const updateApprovalRequest = payload => ({ type: UPDATE_APPROVAL_REQUEST
 export const changeStatusApprovalRequest = payload => ({ type: CHANGE_STATUS_APPROVAL_REQUEST, payload })
 export const addApprovalRequest = payload => ({ type: ADD_APPROVAL_REQUEST, payload })
 
-export const fetchapprovalRequests = () => {
+export const fetchApprovalRequests = () => {
 	return dispatch => {
 		fetch(`${API_URL}/approvalRequests`)
 			.then(res => {

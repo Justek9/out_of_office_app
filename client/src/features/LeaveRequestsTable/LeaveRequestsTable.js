@@ -30,7 +30,6 @@ const LeaveRequestsTable = () => {
 	})
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
-	console.log(currentLeaveRequest)
 	const handleEdit = leaveRequest => {
 		setCurrentLeaveRequest(leaveRequest)
 		setShowModal(true)

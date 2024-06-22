@@ -1,69 +1,86 @@
 import { useEffect, useState } from 'react'
-import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { fetchStatuses } from '../../settings/settings'
+import { fetchStatuses, requestStatus } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
+import { useDispatch, useSelector } from 'react-redux'
+import { getApprovalRequests, fetchApprovalRequests } from '../../redux/approvalRequestsReducer'
+import { API_URL } from '../../settings/config'
 
 const ApprovalRequestsTable = () => {
-	const [approvalRequests, setApprovalRequests] = useState([])
+	const approvalRequests = useSelector(state => getApprovalRequests(state))
 	const [sortBy, setSortBy] = useState({ key: 'approver' })
 	const [status, setStatus] = useState(fetchStatuses.null)
 	const sortedData = sortASC(approvalRequests, sortBy)
+	const dispatch = useDispatch()
 
-	useEffect(() => {
-		setStatus(fetchStatuses.loading)
+	useEffect(() => dispatch(fetchApprovalRequests()), [dispatch])
 
-		fetch(`${API_URL}/approvalRequests`)
+	const handleStatusChange = (approvalRequest, status) => {
+		console.log(approvalRequest)
+
+		const options = {
+			method: 'PATCH',
+			body: JSON.stringify({ ...approvalRequest, status }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+		fetch(`${API_URL}/approvalRequests/${approvalRequest.id}`, options)
 			.then(res => {
-				if (res.status === 200) {
-					setStatus(fetchStatuses.success)
-					return res.json()
+				if (res.status === 201 || res.status == 200) {
+					console.log(res, 'jestem')
+					// setStatus(fetchStatuses.success)
+					dispatch(fetchApprovalRequests())
+				} else {
+					setStatus(fetchStatuses.serverError)
 				}
 			})
-			.then(approvalRequests => {
-				setApprovalRequests(approvalRequests)
-			})
-			.catch(error => {
-				setStatus(fetchStatuses.serverError)
-			})
-	}, [])
+
+			.catch(err => fetchStatuses.serverError)
+	}
 
 	return (
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 			{status === fetchStatuses.serverError && <ErrorMessage />}
 
-			{status === fetchStatuses.success && (
-				<Table responsive='sm'>
-					<thead>
-						<tr>
-							<th>No.</th>
-							<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
-							<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
-							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-							<th>Actions</th>
+			<Table responsive='sm'>
+				<thead>
+					<tr>
+						<th>No.</th>
+						<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
+						<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
+						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{sortedData.map((approvalRequest, i) => (
+						<tr key={i}>
+							<td>{i + 1}</td>
+							<td>{approvalRequest.approver.fullName}</td>
+							<td>{approvalRequest.comment}</td>
+							<td>{approvalRequest.status}</td>
+							<td>
+								<Button color='#3c8d2f80' text={'Edit'} />
+								<Button
+									color='#3c8d2f'
+									text={'Approve'}
+									onClick={() => handleStatusChange(approvalRequest, requestStatus.approved)}
+								/>
+								<Button
+									color='orangered'
+									text={'Reject'}
+									onClick={() => handleStatusChange(approvalRequest, requestStatus.rejected)}
+								/>
+							</td>
 						</tr>
-					</thead>
-					<tbody>
-						{sortedData.map((approvalRequest, i) => (
-							<tr key={i}>
-								<td>{i + 1}</td>
-								<td>{approvalRequest.approver.fullName}</td>
-								<td>{approvalRequest.comment}</td>
-								<td>{approvalRequest.status}</td>
-								<td>
-									<Button color='#3c8d2f80' text={'Edit'}>
-										Edit status
-									</Button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</Table>
-			)}
+					))}
+				</tbody>
+			</Table>
 		</>
 	)
 }
