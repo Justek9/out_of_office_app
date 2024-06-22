@@ -5,12 +5,14 @@ import employeesReducer from './employeesReducer'
 import loggedPersonReducer from './loggedPersonReducer'
 import projectsReducer from './projectsReducer'
 import leaveRequestsReducer from './leaveRequestsReducer'
+import approvalRequestsReducer from './approvalRequestsReducer'
 
 const subreducers = {
 	loggedPerson: loggedPersonReducer,
 	employees: employeesReducer,
 	projects: projectsReducer,
 	leaveRequests: leaveRequestsReducer,
+	approvalRequests: approvalRequestsReducer,
 }
 
 const reducer = combineReducers(subreducers)
