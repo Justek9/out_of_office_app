@@ -5,10 +5,11 @@ import { Table } from 'react-bootstrap'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { fetchStatuses, statusesObj } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
-import { sortASC } from '../../settings/utils'
+import { isAdmin, isPM, sortASC } from '../../settings/utils'
 import EditAddProjectModal from './EditAddProjectsModal'
-import { deactivateProject, fetchProjects, getProjects } from '../../redux/projectsReducer'
+import { fetchProjects, getProjects } from '../../redux/projectsReducer'
 import { useDispatch, useSelector } from 'react-redux'
+import { getRole } from '../../redux/loggedPersonReducer'
 
 const ProjectsTable = () => {
 	const projects = useSelector(state => getProjects(state))
@@ -17,6 +18,7 @@ const ProjectsTable = () => {
 	const [selectedProject, setSelectedProject] = useState(null)
 	const [showModal, setShowModal] = useState(false)
 	const dispatch = useDispatch()
+	const role = useSelector(state => getRole(state))
 
 	const sortedData = sortASC(projects, sortBy)
 
@@ -68,7 +70,7 @@ const ProjectsTable = () => {
 							<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
 							<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
 							<th onClick={() => setSortBy({ key: 'projectManager' })}>Project manager</th>
-							<th>Actions</th>
+							{(isPM(role) || isAdmin(role)) && <th>Actions</th>}
 						</tr>
 					</thead>
 					<tbody>
@@ -81,16 +83,18 @@ const ProjectsTable = () => {
 								<td>{project.comment}</td>
 								<td>{project.status}</td>
 								<td>{project.projectManager.fullName}</td>
-								<td>
-									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(project)}>
-										Edit
-									</Button>
-									{project.status !== statusesObj.inactive && (
-										<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(project.id)}>
-											Deactivate
+								{(isPM(role) || isAdmin(role)) && (
+									<td>
+										<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(project)}>
+											Edit
 										</Button>
-									)}
-								</td>
+										{project.status !== statusesObj.inactive && (
+											<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(project.id)}>
+												Deactivate
+											</Button>
+										)}
+									</td>
+								)}
 							</tr>
 						))}
 					</tbody>

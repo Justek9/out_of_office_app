@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
-import { Table } from 'react-bootstrap'
+import { Form, Table } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { fetchStatuses, statusesObj } from '../../settings/settings'
-import { sortASC } from '../../settings/utils'
+import { fetchStatuses, rolesObj, statusesObj } from '../../settings/settings'
+import { isAdmin, isHRManager, sortASC } from '../../settings/utils'
 import EditAddEmployeeModal from './EditAddEmployeeModal'
+import { getRole } from '../../redux/loggedPersonReducer'
+import EmployeesFilters from './EmployeesFilters'
+import FiltersButtons from '../../common/FiltersButtons/FiltersButtons'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -18,6 +21,42 @@ const EmployeesTable = () => {
 	const [updatedEmployee, setUpdatedEmployee] = useState({})
 	const [status, setStatus] = useState(fetchStatuses.null)
 	const sortedData = sortASC(employees, sortBy)
+	const role = useSelector(state => getRole(state))
+	const [showFilters, setShowFilters] = useState(false)
+	const [filters, setFilters] = useState({
+		fullName: '',
+		subdivision: '',
+		position: '',
+		status: '',
+		peoplePartner: '',
+	})
+
+	const filteredData = sortedData.filter(
+		employee =>
+			employee.fullName.toLowerCase().includes(filters.fullName.toLowerCase()) &&
+			employee.subdivision.toLowerCase().includes(filters.subdivision.toLowerCase()) &&
+			employee.position.toLowerCase().includes(filters.position.toLowerCase()) &&
+			employee.status.toLowerCase().includes(filters.status.toLowerCase()) &&
+			employee.peoplePartner.fullName.toLowerCase().includes(filters.peoplePartner.toLowerCase())
+	)
+
+	const handleFilterChange = e => {
+		const { name, value } = e.target
+		setFilters(prevFilters => ({
+			...prevFilters,
+			[name]: value,
+		}))
+	}
+
+	const clearFilters = () => {
+		setFilters({
+			fullName: '',
+			subdivision: '',
+			position: '',
+			status: '',
+			peoplePartner: '',
+		})
+	}
 
 	const handleEditClick = employee => {
 		setCurrentEmployee(employee)
@@ -56,6 +95,16 @@ const EmployeesTable = () => {
 	if (!employees) return
 	return (
 		<>
+			{showFilters && (
+				<EmployeesFilters filters={filters} handleFilterChange={handleFilterChange} showFilters={showFilters} />
+			)}
+
+			<FiltersButtons
+				handleShow={() => setShowFilters(true)}
+				handleClear={() => clearFilters()}
+				handleHide={() => setShowFilters(false)}
+				showFilters={showFilters}
+			/>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 
 			{employees.length !== 0 && (
@@ -72,8 +121,9 @@ const EmployeesTable = () => {
 							<th>Actions</th>
 						</tr>
 					</thead>
+
 					<tbody>
-						{sortedData.map((employee, i) => (
+						{filteredData.map((employee, i) => (
 							<tr key={i}>
 								<td>{i + 1}</td>
 								<td>{employee.fullName}</td>
@@ -82,16 +132,18 @@ const EmployeesTable = () => {
 								<td>{employee.status}</td>
 								<td>{employee.peoplePartner?.fullName}</td>
 								<td>{employee.outOfOfficeBalance}</td>
-								<td>
-									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(employee)}>
-										Edit
-									</Button>
-									{employee.status !== statusesObj.inactive && (
-										<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>
-											Deactivate
+								{(isAdmin(role) || isHRManager(role)) && (
+									<td>
+										<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEditClick(employee)}>
+											Edit
 										</Button>
-									)}
-								</td>
+										{employee.status !== statusesObj.inactive && (
+											<Button color='gray' text={'Deactivate'} onClick={() => handleDeactivate(employee.id)}>
+												Deactivate
+											</Button>
+										)}
+									</td>
+								)}
 							</tr>
 						))}
 					</tbody>

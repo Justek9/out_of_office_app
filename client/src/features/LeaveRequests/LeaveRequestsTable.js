@@ -6,20 +6,20 @@ import { fetchStatuses, requestStatus } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
-import { changeStatusLeaveRequest, fetchLeaveRequests, getLeaveRequests } from '../../redux/leaveRequestsReducer'
+import { fetchLeaveRequests, getLeaveRequests } from '../../redux/leaveRequestsReducer'
 import { API_URL } from '../../settings/config'
 import EditAddLeaveRequestModal from './EditAddLeaveRequestModal'
-import { getName } from '../../redux/loggedPersonReducer'
+import { getName, getRole } from '../../redux/loggedPersonReducer'
 
 const LeaveRequestsTable = () => {
 	const leaveRequests = useSelector(state => getLeaveRequests(state))
 	const [sortBy, setSortBy] = useState({ key: 'employee' })
 	const [status, setStatus] = useState(fetchStatuses.null)
-	const sortedData = sortASC(leaveRequests, sortBy)
 	const dispatch = useDispatch()
 	const [currentLeaveRequest, setCurrentLeaveRequest] = useState(null)
 	const [showModal, setShowModal] = useState(false)
 	const loggedEmployee = useSelector(state => getName(state))
+	const loggedEmployeeRole = useSelector(state => getRole(state))
 	const [newLeaveRequest, setNewLeaveRequest] = useState({
 		employee: loggedEmployee,
 		absenceReason: '',
@@ -27,6 +27,9 @@ const LeaveRequestsTable = () => {
 		endDate: '',
 		comment: '',
 	})
+
+	const sortedData = sortASC(leaveRequests, sortBy)
+	const filteredData = sortedData.filter(leaveRequest => leaveRequest.employee.fullName === loggedEmployee)
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
 
@@ -81,7 +84,7 @@ const LeaveRequestsTable = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{sortedData.map((leaveRequest, i) => (
+						{filteredData.map((leaveRequest, i) => (
 							<tr key={i}>
 								<td>{i + 1}</td>
 								<td>{leaveRequest.employee.fullName}</td>

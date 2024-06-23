@@ -4,10 +4,16 @@ import styles from './Login.module.scss'
 import { getName, getRole, setName, setRole } from '../../redux/loggedPersonReducer'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { getActiveAdmins, getActiveEmployyes, getActivePeoplePartners, getActiveProjectManagers } from '../../redux/employeesReducer'
+import {
+	getActiveAdmins,
+	getActiveEmployyes,
+	getActivePeoplePartners,
+	getActiveProjectManagers,
+} from '../../redux/employeesReducer'
 import OptionsForEmployeeNameSelect from '../../common/OptionsForEmployeeSelect/OptionsForEmployeeSelect'
 import { rolesArray as roles } from '../../settings/settings'
 import { useState } from 'react'
+import { isEmployee } from '../../settings/utils'
 
 const Login = () => {
 	const dispatch = useDispatch()
@@ -70,7 +76,9 @@ const Login = () => {
 				onClick={() => {
 					dispatch(setRole(selectedRole))
 					dispatch(setName(selectedName))
-					navigate('/lists/employees')
+					{
+						isEmployee(role) ? navigate('/lists/leave-requests') : navigate('/lists/employees')
+					}
 				}}
 			/>
 		</div>

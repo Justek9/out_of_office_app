@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import Button from '../../common/Button/Button'
 import { Table } from 'react-bootstrap'
-import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { fetchStatuses, requestStatus } from '../../settings/settings'
-import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
-import { getApprovalRequests, fetchApprovalRequests } from '../../redux/approvalRequestsReducer'
 import { API_URL } from '../../settings/config'
+import { getApprovalRequests, fetchApprovalRequests } from '../../redux/approvalRequestsReducer'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import Button from '../../common/Button/Button'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 
 const ApprovalRequestsTable = () => {
 	const approvalRequests = useSelector(state => getApprovalRequests(state))
@@ -48,10 +48,9 @@ const ApprovalRequestsTable = () => {
 				<thead>
 					<tr>
 						<th>No.</th>
-						<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
+						<th onClick={() => setSortBy({ key: 'employeeId' })}>Employee</th>
 						<th onClick={() => setSortBy({ key: 'comment' })}>LR Comment</th>
 						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
-						<th onClick={() => setSortBy({ key: 'employeeId' })}>Employee</th>
 						<th onClick={() => setSortBy({ key: 'startDate' })}>Start date</th>
 						<th onClick={() => setSortBy({ key: 'startDate' })}>End date</th>
 						<th>Actions</th>
@@ -61,10 +60,9 @@ const ApprovalRequestsTable = () => {
 					{sortedData.map((approvalRequest, i) => (
 						<tr key={i}>
 							<td>{i + 1}</td>
-							<td>{approvalRequest.approver.fullName}</td>
+							<td>{approvalRequest.leaveRequest.employee.fullName}</td>
 							<td>{approvalRequest.leaveRequest.comment}</td>
 							<td>{approvalRequest.status}</td>
-							<td>{approvalRequest.leaveRequest.employee.fullName}</td>
 							<td>{approvalRequest.leaveRequest.startDate.slice(0, 10)}</td>
 							<td>{approvalRequest.leaveRequest.endDate.slice(0, 10)}</td>
 							<td>

@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Button, Modal, Form, FormGroup } from 'react-bootstrap'
+import { Button, Modal, Form } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { getActiveProjectManagers } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
-
 import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 import { fetchProjects } from '../../redux/projectsReducer'

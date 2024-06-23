@@ -11,11 +11,15 @@ import Employees from './features/Employees/Employees'
 import LeaveRequests from './features/LeaveRequests/LeaveRequests'
 import ApprovalRequests from './features/ApprovalRequests/ApprovalRequests'
 import Projects from './features/Projects/Projects'
+import { fetchLeaveRequests } from './redux/leaveRequestsReducer'
 
 function App() {
 	const dispatch = useDispatch()
 
-	useEffect(() => dispatch(fetchEmployees()), [dispatch])
+	useEffect(() => {
+		dispatch(fetchEmployees())
+		dispatch(fetchLeaveRequests())
+	}, [dispatch])
 
 	return (
 		<Container>

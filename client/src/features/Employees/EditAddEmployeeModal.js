@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { addEmployee, fetchEmployees, getActivePeoplePartners } from '../../redux/employeesReducer'
+import { fetchEmployees, getActivePeoplePartners } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import {
