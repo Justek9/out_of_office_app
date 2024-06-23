@@ -30,6 +30,7 @@ const LeaveRequestsTable = () => {
 	})
 
 	useEffect(() => dispatch(fetchLeaveRequests()), [])
+
 	const handleEdit = leaveRequest => {
 		setCurrentLeaveRequest(leaveRequest)
 		setShowModal(true)
@@ -37,7 +38,7 @@ const LeaveRequestsTable = () => {
 	}
 
 	const handleChangeStatus = (leaveRequest, status) => {
-		setCurrentLeaveRequest(old => leaveRequest)
+		setCurrentLeaveRequest(leaveRequest)
 		setStatus(fetchStatuses.loading)
 		const options = {
 			method: 'PATCH',
@@ -93,21 +94,24 @@ const LeaveRequestsTable = () => {
 								<td>{leaveRequest.comment}</td>
 								<td>{leaveRequest.status}</td>
 								<td>
-									<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEdit(leaveRequest)} />
 									{leaveRequest.status === requestStatus.new && (
 										<>
+											<Button color='#3c8d2f80' text={'Edit'} onClick={() => handleEdit(leaveRequest)} />
 											<Button
 												color='#3c8d2f'
 												text={'Submit'}
 												onClick={() => handleChangeStatus(leaveRequest, requestStatus.submitted)}
-											/>
+											/>{' '}
+										</>
+									)}
+									{leaveRequest.status === requestStatus.new ||
+										(leaveRequest.status === requestStatus.submitted && (
 											<Button
 												color='orangered'
 												text={'Cancel'}
 												onClick={() => handleChangeStatus(leaveRequest, requestStatus.cancelled)}
 											/>
-										</>
-									)}
+										))}
 								</td>
 							</tr>
 						))}
@@ -120,7 +124,7 @@ const LeaveRequestsTable = () => {
 					formData={currentLeaveRequest}
 					showModal={showModal}
 					handleFormChange={handleFormChange}
-					isEditing={isEditing}
+					action='Edit'
 					newLeaveRequest={newLeaveRequest}
 					status={status}
 					setStatus={setStatus}

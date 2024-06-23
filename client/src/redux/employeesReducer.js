@@ -1,17 +1,21 @@
 import { API_URL } from '../settings/config'
-import { rolesObj } from '../settings/settings'
+import { rolesObj, statusesObj } from '../settings/settings'
 
 export const getAllEmployees = ({ employees }) => {
 	return employees
 }
 
-export const getPeoplePartners = ({ employees }) => {
-	let partners = employees.filter(employee => employee.position === rolesObj.hrManager)
+export const getActivePeoplePartners = ({ employees }) => {
+	let partners = employees.filter(
+		employee => employee.position === rolesObj.hrManager && employee.status === statusesObj.active
+	)
 	return partners
 }
 
-export const getAdmins = ({ employees }) => {
-	let admins = employees.filter(employee => employee.position === rolesObj.admin)
+export const getActiveAdmins = ({ employees }) => {
+	let admins = employees.filter(
+		employee => employee.position === rolesObj.admin && employee.status === statusesObj.active
+	)
 	return admins
 }
 
@@ -20,8 +24,15 @@ export const getEmployyes = ({ employees }) => {
 	return allEmployees
 }
 
-export const getProjectManagers = ({ employees }) => {
-	let pms = employees.filter(employee => employee.position === rolesObj.PM)
+export const getActiveEmployyes = ({ employees }) => {
+	let allEmployees = employees.filter(
+		employee => employee.position === rolesObj.employee && employee.status === statusesObj.active
+	)
+	return allEmployees
+}
+
+export const getActiveProjectManagers = ({ employees }) => {
+	let pms = employees.filter(employee => employee.position === rolesObj.PM && employee.status === statusesObj.active)
 	return pms
 }
 

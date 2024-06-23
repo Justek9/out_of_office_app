@@ -1,26 +1,41 @@
 import { Button, Form, Modal } from 'react-bootstrap'
 import { absenceReasonArr, fetchStatuses } from '../../settings/settings'
 import { API_URL } from '../../settings/config'
-import { getIdBasedOnName } from '../../settings/utils'
+import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllEmployees } from '../../redux/employeesReducer'
-import { addLeaveRequest, fetchLeaveRequests, updateLeaveRequest } from '../../redux/leaveRequestsReducer'
+import { fetchLeaveRequests } from '../../redux/leaveRequestsReducer'
+import { useEffect, useState } from 'react'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
 const EditAddLeaveRequestModal = ({
 	showModal,
 	setShowModal,
 	formData,
-	isEditing,
-	// dispatch,
+	action,
 	newLeaveRequest,
 	handleFormChange,
-	status,
 	setStatus,
+	status,
 }) => {
 	const employees = useSelector(getAllEmployees)
 	const dispatch = useDispatch()
+	const isEditing = isActionEdit(action)
 
 	const handleSubmit = () => {
+		if (
+			!isEditing &&
+			(!newLeaveRequest.employee ||
+				!newLeaveRequest.startDate ||
+				!newLeaveRequest.endDate ||
+				!newLeaveRequest.absenceReason)
+		)
+			return alert('Please fill all fields marked with asterisk')
+
+		if (isEditing && (!formData.employee || !formData.startDate || !formData.endDate || !formData.absenceReason))
+			return alert('Please fill all fields marked with asterisk')
+
 		const employeeId = getIdBasedOnName(newLeaveRequest.employee, employees)
 		const startDate = isEditing ? new Date(formData.startDate) : new Date(newLeaveRequest.startDate)
 		const endDate = isEditing ? new Date(formData.endDate) : new Date(newLeaveRequest.endDate)
@@ -42,22 +57,24 @@ const EditAddLeaveRequestModal = ({
 					dispatch(fetchLeaveRequests())
 					setShowModal(false)
 				} else {
-					setStatus(fetchStatuses.serverError)
+					setStatus(fetchStatuses.clientError)
 				}
 			})
 
-			.catch(err => fetchStatuses.serverError)
+			.catch(() => fetchStatuses.serverError)
 	}
 
 	return (
 		<Modal show={showModal} onHide={() => setShowModal(false)}>
+			{status === fetchStatuses.clientError || (status === fetchStatuses.serverError && <ErrorMessage />)}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
 			<Modal.Header closeButton>
 				<Modal.Title>{isEditing ? 'Edit' : 'Add'} Leave Request</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form>
 					<Form.Group controlId='formEmployee'>
-						<Form.Label>Employee</Form.Label>
+						<Form.Label>Employee*</Form.Label>
 						<Form.Control
 							type='text'
 							name='employee'
@@ -67,11 +84,12 @@ const EditAddLeaveRequestModal = ({
 						/>
 					</Form.Group>
 					<Form.Group controlId='formAbsenceReason'>
-						<Form.Label>Absence Reason</Form.Label>
+						<Form.Label>Absence Reason*</Form.Label>
 						<Form.Control
 							as='select'
 							name='absenceReason'
 							value={isEditing ? formData.absenceReason : newLeaveRequest.absenceReason}
+							required
 							onChange={handleFormChange}>
 							<option value=''>Please select</option>
 							{absenceReasonArr.map(reason => (
@@ -82,16 +100,17 @@ const EditAddLeaveRequestModal = ({
 						</Form.Control>
 					</Form.Group>
 					<Form.Group controlId='formStartDate'>
-						<Form.Label>Start Date</Form.Label>
+						<Form.Label>Start Date*</Form.Label>
 						<Form.Control
 							type='date'
 							name='startDate'
+							required
 							value={isEditing ? formData.startDate.slice(0, 10) : newLeaveRequest.startDate}
 							onChange={handleFormChange}
 						/>
 					</Form.Group>
 					<Form.Group controlId='formEndDate'>
-						<Form.Label>End Date</Form.Label>
+						<Form.Label>End Date*</Form.Label>
 						<Form.Control
 							type='date'
 							name='endDate'

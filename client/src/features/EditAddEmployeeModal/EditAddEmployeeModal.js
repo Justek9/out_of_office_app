@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { addEmployee, fetchEmployees, getPeoplePartners } from '../../redux/employeesReducer'
+import { addEmployee, fetchEmployees, getActivePeoplePartners } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import {
@@ -14,10 +14,13 @@ import {
 	fetchStatuses,
 } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 
 const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
 	const [status, setStatus] = useState(null)
-	const peoplePartners = useSelector(state => getPeoplePartners(state))
+	const [isBtnDisabled, setIsBtnDisabled] = useState(true)
+	const peoplePartners = useSelector(state => getActivePeoplePartners(state))
+	const isEditing = isActionEdit(action)
 
 	const dispatch = useDispatch()
 
@@ -26,7 +29,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		subdivision: subdivisionsObj.hr,
 		position: rolesObj.hrManager,
 		status: statusesObj.active,
-		peoplePartner: 'Alice Brown',
+		peoplePartner: '',
 		outOfOfficeBalance: '',
 	})
 
@@ -46,114 +49,131 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		}
 		fetch(`${API_URL}/employees`, options)
 			.then(res => {
-				if (res.status === 200) {
+				if (res.status === 201) {
 					setStatus(fetchStatuses.success)
-					dispatch(addEmployee(newEmployee))
 					setShowModal(false)
-					dispatch(fetchEmployees)
+					dispatch(fetchEmployees())
 				} else {
-					setStatus(fetchStatuses.serverError)
+					setStatus(fetchStatuses.clientError)
 				}
 			})
 			.catch(e => setStatus(fetchStatuses.serverError))
 	}
 
+	useEffect(() => {
+		if (
+			newEmployee.fullName &&
+			newEmployee.subdivision &&
+			newEmployee.position &&
+			newEmployee.status &&
+			newEmployee.peoplePartner &&
+			newEmployee.outOfOfficeBalance
+		)
+			setIsBtnDisabled(false)
+	}, [newEmployee])
+
 	return (
-		<Modal show={showModal} onHide={() => setShowModal(false)}>
-			<Modal.Header closeButton>
-				<Modal.Title>{isActionEdit(action) ? 'Edit' : 'Add'} Employee</Modal.Title>
-			</Modal.Header>
-			<Modal.Body>
-				<Form>
-					<Form.Group controlId='formFullName'>
-						<Form.Label>Full Name</Form.Label>
-						<Form.Control
-							type='text'
-							name='fullName'
-							value={isActionEdit(action) ? updatedEmployee.fullName : newEmployee.fullName}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('fullName', e.target.value))}
-						/>
-					</Form.Group>
-					<Form.Group controlId='formSubdivision'>
-						<Form.Label>Subdivision</Form.Label>
-						<Form.Control
-							as='select'
-							name='subdivision'
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('subdivision', e.target.value))}
-							value={isActionEdit(action) ? updatedEmployee.subdivision : newEmployee.subdivision}
-							fullName>
-							{subdivisions.map(subdivision => (
-								<option key={subdivision} value={subdivision}>
-									{subdivision}
-								</option>
-							))}
-						</Form.Control>
-					</Form.Group>
-					<Form.Group controlId='formPosition'>
-						<Form.Label>Position</Form.Label>
-						<Form.Control
-							as='select'
-							name='position'
-							value={isActionEdit(action) ? updatedEmployee.position : newEmployee.position}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('position', e.target.value))}>
-							{positions.map(position => (
-								<option key={position} value={position}>
-									{position}
-								</option>
-							))}
-						</Form.Control>
-					</Form.Group>
-					<Form.Group controlId='formStatus'>
-						<Form.Label>Status</Form.Label>
-						<Form.Control
-							as='select'
-							name='status'
-							value={isActionEdit(action) ? updatedEmployee.status : newEmployee.status}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('status', e.target.value))}>
-							{statuses.map(status => (
-								<option key={status} value={status}>
-									{status}
-								</option>
-							))}
-						</Form.Control>
-					</Form.Group>
-					<Form.Group controlId='formPeoplePartner'>
-						<Form.Label>People Partner</Form.Label>
-						<Form.Control
-							as='select'
-							name='peoplePartner'
-							value={isActionEdit(action) ? updatedEmployee.peoplePartner?.fullName : newEmployee.peoplePartner}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('peoplePartner', e.target.value))}>
-							{peoplePartners.map(partner => (
-								<option key={partner.id} value={partner.fullName}>
-									{partner.fullName}
-								</option>
-							))}
-						</Form.Control>
-					</Form.Group>
-					<Form.Group controlId='formOutOfOfficeBalance'>
-						<Form.Label>Out of Office Balance</Form.Label>
-						<Form.Control
-							type='number'
-							name='outOfOfficeBalance'
-							value={isActionEdit(action) ? updatedEmployee.outOfOfficeBalance : newEmployee.outOfOfficeBalance}
-							onChange={e =>
-								isActionEdit(action) ? handleChange(e) : handleAddNew('outOfOfficeBalance', e.target.value)
-							}
-						/>
-					</Form.Group>
-				</Form>
-			</Modal.Body>
-			<Modal.Footer>
-				<Button variant='secondary' onClick={() => setShowModal(false)}>
-					Close
-				</Button>
-				<Button variant='primary' onClick={isActionEdit(action) ? handleSave : handleSaveAddNew}>
-					Save Changes
-				</Button>
-			</Modal.Footer>
-			{status === fetchStatuses.loading && <LoadingSpinner />}
-		</Modal>
+		<>
+			<Modal show={showModal} onHide={() => setShowModal(false)}>
+				{status === fetchStatuses.clientError || (status === fetchStatuses.serverError && <ErrorMessage />)}
+				{status === fetchStatuses.loading && <LoadingSpinner />}
+
+				<Modal.Header closeButton>
+					<Modal.Title>{isEditing ? 'Edit' : 'Add'} Employee</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<Form>
+						<Form.Group controlId='formFullName'>
+							<Form.Label>Full Name</Form.Label>
+							<Form.Control
+								type='text'
+								name='fullName'
+								value={isEditing ? updatedEmployee.fullName : newEmployee.fullName}
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('fullName', e.target.value))}
+							/>
+						</Form.Group>
+						<Form.Group controlId='formSubdivision'>
+							<Form.Label>Subdivision</Form.Label>
+							<Form.Control
+								as='select'
+								name='subdivision'
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('subdivision', e.target.value))}
+								value={isEditing ? updatedEmployee.subdivision : newEmployee.subdivision}
+								fullName>
+								{subdivisions.map(subdivision => (
+									<option key={subdivision} value={subdivision}>
+										{subdivision}
+									</option>
+								))}
+							</Form.Control>
+						</Form.Group>
+						<Form.Group controlId='formPosition'>
+							<Form.Label>Position</Form.Label>
+							<Form.Control
+								as='select'
+								name='position'
+								value={isEditing ? updatedEmployee.position : newEmployee.position}
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('position', e.target.value))}>
+								{positions.map(position => (
+									<option key={position} value={position}>
+										{position}
+									</option>
+								))}
+							</Form.Control>
+						</Form.Group>
+						<Form.Group controlId='formStatus'>
+							<Form.Label>Status</Form.Label>
+							<Form.Control
+								as='select'
+								name='status'
+								value={isEditing ? updatedEmployee.status : newEmployee.status}
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('status', e.target.value))}>
+								{statuses.map(status => (
+									<option key={status} value={status}>
+										{status}
+									</option>
+								))}
+							</Form.Control>
+						</Form.Group>
+						<Form.Group controlId='formPeoplePartner'>
+							<Form.Label>People Partner</Form.Label>
+							<Form.Control
+								as='select'
+								name='peoplePartner'
+								value={isEditing ? updatedEmployee.peoplePartner?.fullName : newEmployee.peoplePartner}
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('peoplePartner', e.target.value))}>
+								<option value=''>--Please choose--</option>
+								{peoplePartners.map(partner => (
+									<option key={partner.id} value={partner.fullName}>
+										{partner.fullName}
+									</option>
+								))}
+							</Form.Control>
+						</Form.Group>
+						<Form.Group controlId='formOutOfOfficeBalance'>
+							<Form.Label>Out of Office Balance</Form.Label>
+							<Form.Control
+								type='number'
+								name='outOfOfficeBalance'
+								value={isEditing ? updatedEmployee.outOfOfficeBalance : newEmployee.outOfOfficeBalance}
+								onChange={e => (isEditing ? handleChange(e) : handleAddNew('outOfOfficeBalance', e.target.value))}
+							/>
+						</Form.Group>
+					</Form>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant='secondary' onClick={() => setShowModal(false)}>
+						Close
+					</Button>
+					{!isBtnDisabled && (
+						<Button variant='primary' onClick={isEditing ? handleSave : handleSaveAddNew}>
+							Save Changes
+						</Button>
+					)}
+				</Modal.Footer>
+				{status === fetchStatuses.loading && <LoadingSpinner />}
+			</Modal>
+		</>
 	)
 }
 

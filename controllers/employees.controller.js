@@ -105,7 +105,7 @@ exports.add = async (req, res) => {
 					peoplePartnerId,
 				},
 			})
-			res.send({ message: 'Employee added' })
+			res.status(201).send({ message: 'Employee added' })
 		} else {
 			res.status(400).json('Not enough data')
 		}

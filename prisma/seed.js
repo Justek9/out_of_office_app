@@ -11,6 +11,7 @@ function getHrManagers() {
 			status: 'INACTIVE',
 			outOfOfficeBalance: 15,
 			photo: null,
+			peoplePartnerId: 'g7h8i9jk-6l3m-9n4o-5p0q-90r4s7tu8v91',
 		},
 		{
 			id: 'b2c3d5ec-1f8a-4893-9c3e-45e0d29b8c76',
@@ -20,6 +21,7 @@ function getHrManagers() {
 			status: 'ACTIVE',
 			outOfOfficeBalance: 10,
 			photo: null,
+			peoplePartnerId: 'g7h8i9jk-6l3m-9n4o-5p0q-90r4s7tu8v91',
 		},
 		{
 			id: 'e5f6g8hi-4j1k-7l2m-3n0o-78p2q5rs6t79',
@@ -29,6 +31,7 @@ function getHrManagers() {
 			status: 'ACTIVE',
 			outOfOfficeBalance: 6,
 			photo: null,
+			peoplePartnerId: 'g7h8i9jk-6l3m-9n4o-5p0q-90r4s7tu8v91',
 		},
 	]
 }

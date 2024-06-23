@@ -4,7 +4,7 @@ import styles from './Login.module.scss'
 import { getName, getRole, setName, setRole } from '../../redux/loggedPersonReducer'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
-import { getAdmins, getEmployyes, getPeoplePartners, getProjectManagers } from '../../redux/employeesReducer'
+import { getActiveAdmins, getActiveEmployyes, getActivePeoplePartners, getActiveProjectManagers } from '../../redux/employeesReducer'
 import OptionsForEmployeeNameSelect from '../../common/OptionsForEmployeeSelect/OptionsForEmployeeSelect'
 import { rolesArray as roles } from '../../settings/settings'
 import { useState } from 'react'
@@ -28,10 +28,10 @@ const Login = () => {
 		dispatch(setName(e.target.value))
 	}
 
-	const employees = useSelector(state => getEmployyes(state))
-	const projectManagers = useSelector(state => getProjectManagers(state))
-	const peoplesPartners = useSelector(state => getPeoplePartners(state))
-	const admins = useSelector(state => getAdmins(state))
+	const employees = useSelector(state => getActiveEmployyes(state))
+	const projectManagers = useSelector(state => getActiveProjectManagers(state))
+	const peoplesPartners = useSelector(state => getActivePeoplePartners(state))
+	const admins = useSelector(state => getActiveAdmins(state))
 
 	const navigate = useNavigate()
 

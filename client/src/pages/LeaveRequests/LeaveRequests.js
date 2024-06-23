@@ -5,11 +5,13 @@ import LeaveRequestsTable from '../../features/LeaveRequestsTable/LeaveRequestsT
 import { useSelector } from 'react-redux'
 import { getName } from '../../redux/loggedPersonReducer'
 import Button from '../../common/Button/Button'
+import { fetchStatuses } from '../../settings/settings'
 
 const LeaveRequests = () => {
 	const [showModal, setShowModal] = useState(false)
-	const [isEditing, setIsEditing] = useState(false)
 	const loggedEmployee = useSelector(state => getName(state))
+	const [status, setStatus] = useState(fetchStatuses.null)
+
 	const [newLeaveRequest, setNewLeaveRequest] = useState({
 		employee: loggedEmployee,
 		absenceReason: '',
@@ -23,7 +25,6 @@ const LeaveRequests = () => {
 		setNewLeaveRequest(prevState => ({ ...prevState, [name]: value }))
 	}
 
-
 	return (
 		<>
 			<Header text={'Leave Requests'} />
@@ -31,11 +32,13 @@ const LeaveRequests = () => {
 			<LeaveRequestsTable />
 			{showModal && (
 				<EditAddLeaveRequestModal
-					isEditing={isEditing}
+					action={'Add'}
 					newLeaveRequest={newLeaveRequest}
 					showModal={showModal}
 					setShowModal={setShowModal}
 					handleFormChange={handleFormChange}
+					status={status}
+					setStatus={setStatus}
 				/>
 			)}
 		</>

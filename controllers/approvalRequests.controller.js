@@ -11,6 +11,16 @@ exports.getAll = async (req, res) => {
 						id: true,
 					},
 				},
+				leaveRequest: {
+					include: {
+						employee: {
+							select: {
+								id: true,
+								fullName: true,
+							},
+						},
+					},
+				},
 			},
 		})
 		res.json(approvalRequests)
@@ -19,11 +29,10 @@ exports.getAll = async (req, res) => {
 	}
 }
 
-exports.edit = async (req, res) => {}
-
 exports.changeStatus = async (req, res) => {
 	const { status, leaveRequestID } = req.body
 	const id = req.params.id
+	console.log(status)
 
 	try {
 		const approvalRequest = await prisma.approvalRequest.findUnique({
@@ -46,6 +55,7 @@ exports.changeStatus = async (req, res) => {
 				where: {
 					id: leaveRequestID,
 				},
+				include: { employee: true },
 			})
 
 			if (leaveRequest) {
@@ -57,6 +67,16 @@ exports.changeStatus = async (req, res) => {
 						status: status,
 					},
 				})
+
+				if (status === 'APPROVED') {
+					const startDate = new Date(leaveRequest.startDate)
+					const endDate = new Date(leaveRequest.endDate)
+					const leaveDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1
+					await prisma.employee.update({
+						where: { id: leaveRequest.employeeId },
+						data: { outOfOfficeBalance: leaveRequest.employee.outOfOfficeBalance - leaveDays },
+					})
+				}
 
 				res.status(201).json({
 					message: 'Leave request and approval request updated',
@@ -72,4 +92,3 @@ exports.changeStatus = async (req, res) => {
 	}
 }
 
-exports.add = async (req, res) => {}

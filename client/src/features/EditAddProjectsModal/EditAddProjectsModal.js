@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Button, Modal, Form, FormGroup } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProjectManagers } from '../../redux/employeesReducer'
+import { getActiveProjectManagers } from '../../redux/employeesReducer'
 import { API_URL } from '../../settings/config'
 
 import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
-import { addProject, fetchProjects, updateProject } from '../../redux/projectsReducer'
+import { fetchProjects } from '../../redux/projectsReducer'
 
 const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => {
 	const [formData, setFormData] = useState({ ...project })
@@ -23,7 +23,7 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 	const [status, setStatus] = useState()
 	const dispatch = useDispatch()
 
-	const projectManagers = useSelector(state => getProjectManagers(state))
+	const projectManagers = useSelector(state => getActiveProjectManagers(state))
 
 	const handleChange = e => {
 		const { name, value } = e.target

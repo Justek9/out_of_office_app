@@ -31,8 +31,7 @@ const ApprovalRequestsTable = () => {
 		fetch(`${API_URL}/approvalRequests/${approvalRequest.id}`, options)
 			.then(res => {
 				if (res.status === 201 || res.status == 200) {
-					console.log(res, 'jestem')
-					// setStatus(fetchStatuses.success)
+					setStatus(fetchStatuses.success)
 					dispatch(fetchApprovalRequests())
 				} else {
 					setStatus(fetchStatuses.serverError)
@@ -52,8 +51,11 @@ const ApprovalRequestsTable = () => {
 					<tr>
 						<th>No.</th>
 						<th onClick={() => setSortBy({ key: 'approver' })}>Approver</th>
-						<th onClick={() => setSortBy({ key: 'comment' })}>Comment</th>
+						<th onClick={() => setSortBy({ key: 'comment' })}>LR Comment</th>
 						<th onClick={() => setSortBy({ key: 'status' })}>Status</th>
+						<th onClick={() => setSortBy({ key: 'employeeId' })}>Employee</th>
+						<th onClick={() => setSortBy({ key: 'startDate' })}>Start date</th>
+						<th onClick={() => setSortBy({ key: 'startDate' })}>End date</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -62,20 +64,26 @@ const ApprovalRequestsTable = () => {
 						<tr key={i}>
 							<td>{i + 1}</td>
 							<td>{approvalRequest.approver.fullName}</td>
-							<td>{approvalRequest.comment}</td>
+							<td>{approvalRequest.leaveRequest.comment}</td>
 							<td>{approvalRequest.status}</td>
+							<td>{approvalRequest.leaveRequest.employee.fullName}</td>
+							<td>{approvalRequest.leaveRequest.startDate.slice(0, 10)}</td>
+							<td>{approvalRequest.leaveRequest.endDate.slice(0, 10)}</td>
 							<td>
-								<Button color='#3c8d2f80' text={'Edit'} />
-								<Button
-									color='#3c8d2f'
-									text={'Approve'}
-									onClick={() => handleStatusChange(approvalRequest, requestStatus.approved)}
-								/>
-								<Button
-									color='orangered'
-									text={'Reject'}
-									onClick={() => handleStatusChange(approvalRequest, requestStatus.rejected)}
-								/>
+								{approvalRequest.status === requestStatus.new && (
+									<>
+										<Button
+											color='#3c8d2f'
+											text={'Approve'}
+											onClick={() => handleStatusChange(approvalRequest, requestStatus.approved)}
+										/>
+										<Button
+											color='orangered'
+											text={'Reject'}
+											onClick={() => handleStatusChange(approvalRequest, requestStatus.rejected)}
+										/>
+									</>
+								)}
 							</td>
 						</tr>
 					))}
