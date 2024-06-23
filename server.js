@@ -29,6 +29,9 @@ app.use('/api/', projectsRoutes)
 app.use('/api/', leaveRequests)
 app.use('/api/', approvalRequests)
 
+app.use(express.static(path.join(__dirname, '/public')))
+app.use(express.static(path.join(__dirname, '/client/build')))
+
 app.use((req, res) => {
 	res.status(404).send({ message: 'Not found...' })
 })

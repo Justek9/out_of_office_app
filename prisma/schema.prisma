@@ -74,14 +74,14 @@ model LeaveRequest {
   endDate         DateTime
   comment         String?
   status          RequestStatus     @default(NEW)
-  ApprovalRequest ApprovalRequest[]
+  ApprovalRequest ApprovalRequest?
 }
 
 model ApprovalRequest {
   id             String        @id @default(uuid())
   employeeId     String
   approver       Employee      @relation(fields: [employeeId], references: [id])
-  leaveRequestID String
+  leaveRequestID String        @unique
   leaveRequest   LeaveRequest  @relation(fields: [leaveRequestID], references: [id])
   status         RequestStatus @default(NEW)
   comment        String?

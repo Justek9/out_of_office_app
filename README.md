@@ -1,6 +1,6 @@
-[Application for out-of-office managaement]()
+[Application for out-of-office managaement](https://out-of-office-app.onrender.com)
 
-This is a full-stack application for handling employee leave requests, projects and emloyees dta. This application allows employees to submit leave requests and managers to review, edit, and change the status of those requests, add, change, deactivate new projects and new employees.
+This is a full-stack application for handling employee leave requests, projects and emloyees dta. This application allows employees to submit leave requests and managers to review, edit, and change the status of those requests, add, change, deactivate new projects and manage new employees.
 
 ## Technlogies used
 
