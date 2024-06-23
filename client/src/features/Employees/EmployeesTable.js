@@ -25,32 +25,6 @@ const EmployeesTable = () => {
 		setShowModal(true)
 	}
 
-	const handleSave = () => {
-		setStatus(fetchStatuses.loading)
-		const options = {
-			method: 'PUT',
-			body: JSON.stringify(updatedEmployee),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		}
-
-		fetch(`${API_URL}/employees/${updatedEmployee.id}`, options)
-			.then(res => {
-				if (res.status === 200) {
-					setStatus(fetchStatuses.success)
-					dispatch(updateEmployee(updatedEmployee))
-					dispatch(fetchEmployees)
-					setShowModal(false)
-				} else {
-					setStatus(fetchStatuses.serverError)
-				}
-			})
-			.catch(e => setStatus(fetchStatuses.serverError))
-
-		setShowModal(false)
-	}
-
 	const handleChange = e => {
 		const { name, value } = e.target
 		setUpdatedEmployee(previous => ({
@@ -128,7 +102,6 @@ const EmployeesTable = () => {
 				<EditAddEmployeeModal
 					showModal={showModal}
 					setShowModal={setShowModal}
-					handleSave={handleSave}
 					handleChange={handleChange}
 					updatedEmployee={updatedEmployee}
 					action='Edit'

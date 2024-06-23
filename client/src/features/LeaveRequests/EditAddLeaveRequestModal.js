@@ -7,6 +7,9 @@ import { getAllEmployees } from '../../redux/employeesReducer'
 import { fetchLeaveRequests } from '../../redux/leaveRequestsReducer'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import DateAlert from '../../common/DateAlert/DateAlert'
+import MissingDataAlert from '../../common/MissingDataAlert/MissingDataAlert'
+import { useState } from 'react'
 
 const EditAddLeaveRequestModal = ({
 	showModal,
@@ -21,23 +24,24 @@ const EditAddLeaveRequestModal = ({
 	const employees = useSelector(getAllEmployees)
 	const dispatch = useDispatch()
 	const isEditing = isActionEdit(action)
+	const [dateAlert, setDateAlert] = useState(false)
+	const [missingDataAlert, setMissingDataAlert] = useState(false)
+
+	const isDataProvided = obj => {
+		if (!obj.employee || !obj.startDate || !obj.endDate || !obj.absenceReason) setMissingDataAlert(true)
+	}
 
 	const handleSubmit = () => {
-		if (
-			!isEditing &&
-			(!newLeaveRequest.employee ||
-				!newLeaveRequest.startDate ||
-				!newLeaveRequest.endDate ||
-				!newLeaveRequest.absenceReason)
-		)
-			return alert('Please fill all fields marked with asterisk')
-
-		if (isEditing && (!formData.employee || !formData.startDate || !formData.endDate || !formData.absenceReason))
-			return alert('Please fill all fields marked with asterisk')
+		isEditing ? isDataProvided(formData) : isDataProvided(newLeaveRequest)
 
 		const employeeId = getIdBasedOnName(newLeaveRequest.employee, employees)
 		const startDate = isEditing ? new Date(formData.startDate) : new Date(newLeaveRequest.startDate)
 		const endDate = isEditing ? new Date(formData.endDate) : new Date(newLeaveRequest.endDate)
+
+		if (endDate < startDate) {
+			setDateAlert(true)
+			return
+		}
 
 		const addLeaveRequestData = JSON.stringify({ ...newLeaveRequest, startDate, endDate, employeeId })
 		const editLeaveRequestData = JSON.stringify({ ...formData, startDate, endDate })
@@ -67,6 +71,10 @@ const EditAddLeaveRequestModal = ({
 		<Modal show={showModal} onHide={() => setShowModal(false)}>
 			{status === fetchStatuses.clientError || (status === fetchStatuses.serverError && <ErrorMessage />)}
 			{status === fetchStatuses.loading && <LoadingSpinner />}
+
+			{dateAlert && <DateAlert />}
+			{missingDataAlert && <MissingDataAlert />}
+
 			<Modal.Header closeButton>
 				<Modal.Title>{isEditing ? 'Edit' : 'Add'} Leave Request</Modal.Title>
 			</Modal.Header>

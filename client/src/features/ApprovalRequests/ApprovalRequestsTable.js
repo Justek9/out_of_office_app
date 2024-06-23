@@ -19,8 +19,6 @@ const ApprovalRequestsTable = () => {
 	useEffect(() => dispatch(fetchApprovalRequests()), [dispatch])
 
 	const handleStatusChange = (approvalRequest, status) => {
-		console.log(approvalRequest)
-
 		const options = {
 			method: 'PATCH',
 			body: JSON.stringify({ ...approvalRequest, status }),

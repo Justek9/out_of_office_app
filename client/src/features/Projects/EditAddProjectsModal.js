@@ -7,8 +7,12 @@ import { API_URL } from '../../settings/config'
 import { fetchStatuses, projectTypesArr as projectTypes, statusesArray } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 import { fetchProjects } from '../../redux/projectsReducer'
+import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
+import DateAlert from '../../common/DateAlert/DateAlert'
+import MissingDataAlert from '../../common/MissingDataAlert/MissingDataAlert'
 
-const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => {
+const EditAddProjectModal = ({ show, handleClose, project, action }) => {
 	const [formData, setFormData] = useState({ ...project })
 
 	const [newProject, setNewProject] = useState({
@@ -21,9 +25,11 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 	})
 
 	const [status, setStatus] = useState()
+	const [dateAlert, setDateAlert] = useState(false)
+	const [missingDataAlert, setMissingDataAlert] = useState(false)
 	const dispatch = useDispatch()
-
 	const projectManagers = useSelector(state => getActiveProjectManagers(state))
+	const isEditing = isActionEdit(action)
 
 	const handleChange = e => {
 		const { name, value } = e.target
@@ -41,29 +47,42 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 			: setFormData(prevState => ({ ...prevState, [name]: value }))
 	}
 
+	const isDataProvided = obj => {
+		if (!obj.projectType || !obj.startDate || !obj.endDate || !obj.status || !obj.projectManager)
+			setMissingDataAlert(true)
+		return
+	}
+
 	const handleSubmit = () => {
+		isEditing ? isDataProvided(formData) : isDataProvided(newProject)
+
 		const idNew = getIdBasedOnName(newProject.projectManager, projectManagers)
-		const startDate = isActionEdit(action) ? new Date(formData.startDate) : new Date(newProject.startDate)
-		const endDate = isActionEdit(action) ? new Date(formData.endDate) : new Date(newProject.endDate)
+		const startDate = isEditing ? new Date(formData.startDate) : new Date(newProject.startDate)
+		const endDate = isEditing ? new Date(formData.endDate) : new Date(newProject.endDate)
+
+		if (endDate < startDate) {
+			setDateAlert(true)
+			return
+		}
 
 		const addProjectData = JSON.stringify({ ...newProject, projectManagerId: idNew, startDate, endDate })
 		const editProjectData = JSON.stringify({ ...formData, startDate, endDate })
 
 		const options = {
-			method: isActionEdit(action) ? 'PUT' : 'POST',
-			body: isActionEdit(action) ? editProjectData : addProjectData,
+			method: isEditing ? 'PUT' : 'POST',
+			body: isEditing ? editProjectData : addProjectData,
 			headers: {
 				'Content-Type': 'application/json',
 			},
 		}
-		fetch(isActionEdit(action) ? `${API_URL}/projects/${formData.id}` : `${API_URL}/projects`, options)
+		fetch(isEditing ? `${API_URL}/projects/${formData.id}` : `${API_URL}/projects`, options)
 			.then(res => {
 				if (res.status === 200) {
 					setStatus(fetchStatuses.success)
 					dispatch(fetchProjects())
 					handleClose()
 				} else {
-					setStatus(fetchStatuses.serverError)
+					setStatus(fetchStatuses.clientError)
 				}
 			})
 
@@ -76,18 +95,24 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 
 	return (
 		<Modal show={show} onHide={handleClose}>
+			{status === fetchStatuses.clientError || (status === fetchStatuses.serverError && <ErrorMessage />)}
+			{status === fetchStatuses.loading && <LoadingSpinner />}
+
+			{dateAlert && <DateAlert />}
+			{missingDataAlert && <MissingDataAlert />}
+
 			<Modal.Header closeButton>
-				<Modal.Title>{isActionEdit(action) ? 'Edit' : 'Add'} Project</Modal.Title>
+				<Modal.Title>{isEditing ? 'Edit' : 'Add'} Project</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form>
 					<Form.Group>
-						<Form.Label>Project Type</Form.Label>
+						<Form.Label>Project Type*</Form.Label>
 						<Form.Control
 							as='select'
 							name='projectType'
-							value={isActionEdit(action) ? formData.projectType : newProject.projectType}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectType', e.target.value))}>
+							value={isEditing ? formData.projectType : newProject.projectType}
+							onChange={e => (isEditing ? handleChange(e) : handleAddNew('projectType', e.target.value))}>
 							<option value=''>Please select</option>
 							{projectTypes.map(type => (
 								<option key={type} value={type}>
@@ -97,21 +122,21 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						</Form.Control>
 					</Form.Group>
 					<Form.Group>
-						<Form.Label>Start Date</Form.Label>
+						<Form.Label>Start Date*</Form.Label>
 						<Form.Control
 							type='date'
 							name='startDate'
-							value={isActionEdit(action) ? formData.startDate.slice(0, 10) : newProject.startDate}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('startDate', e.target.value))}
+							value={isEditing ? formData.startDate.slice(0, 10) : newProject.startDate}
+							onChange={e => (isEditing ? handleChange(e) : handleAddNew('startDate', e.target.value))}
 						/>
 					</Form.Group>
 					<Form.Group>
-						<Form.Label>End Date</Form.Label>
+						<Form.Label>End Date*</Form.Label>
 						<Form.Control
 							type='date'
 							name='endDate'
-							value={isActionEdit(action) ? formData.endDate.slice(0, 10) : newProject.endDate}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('endDate', e.target.value))}
+							value={isEditing ? formData.endDate.slice(0, 10) : newProject.endDate}
+							onChange={e => (isEditing ? handleChange(e) : handleAddNew('endDate', e.target.value))}
 						/>
 					</Form.Group>
 					<Form.Group>
@@ -119,18 +144,18 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						<Form.Control
 							type='text'
 							name='comment'
-							value={isActionEdit(action) ? formData.comment : newProject.comment}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('comment', e.target.value))}
+							value={isEditing ? formData.comment : newProject.comment}
+							onChange={e => (isEditing ? handleChange(e) : handleAddNew('comment', e.target.value))}
 						/>
 					</Form.Group>
 					<Form.Group>
-						<Form.Label>Status</Form.Label>
+						<Form.Label>Status*</Form.Label>
 						<Form.Control
 							as='select'
 							name='status'
-							value={isActionEdit(action) ? formData.status : newProject.status}
-							readOnly={isActionEdit(action) ? true : false}
-							onChange={e => (isActionEdit(action) ? '' : handleAddNew('status', e.target.value))}>
+							value={isEditing ? formData.status : newProject.status}
+							readOnly={isEditing ? true : false}
+							onChange={e => (isEditing ? '' : handleAddNew('status', e.target.value))}>
 							<option value=''>Please select</option>
 
 							{statusesArray.map(status => (
@@ -141,12 +166,12 @@ const EditAddProjectModal = ({ show, handleClose, project, onSave, action }) => 
 						</Form.Control>
 					</Form.Group>
 					<Form.Group>
-						<Form.Label>Project Manager</Form.Label>
+						<Form.Label>Project Manager*</Form.Label>
 						<Form.Control
 							as='select'
 							name='projectManager'
-							value={isActionEdit(action) ? formData.projectManager.fullName : newProject.projectManager}
-							onChange={e => (isActionEdit(action) ? handleChange(e) : handleAddNew('projectManager', e.target.value))}>
+							value={isEditing ? formData.projectManager.fullName : newProject.projectManager}
+							onChange={e => (isEditing ? handleChange(e) : handleAddNew('projectManager', e.target.value))}>
 							<option value=''>Please select</option>
 							{projectManagers.map(pm => (
 								<option key={pm.fullName} value={pm.fullName}>

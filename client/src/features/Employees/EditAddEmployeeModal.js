@@ -15,12 +15,13 @@ import {
 } from '../../settings/settings'
 import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
+import MissingDataAlert from '../../common/MissingDataAlert/MissingDataAlert'
 
-const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSave, updatedEmployee, action }) => {
+const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, updatedEmployee, action }) => {
 	const [status, setStatus] = useState(null)
-	const [isBtnDisabled, setIsBtnDisabled] = useState(true)
 	const peoplePartners = useSelector(state => getActivePeoplePartners(state))
 	const isEditing = isActionEdit(action)
+	const [missingDataAlert, setMissingDataAlert] = useState(false)
 
 	const dispatch = useDispatch()
 
@@ -37,22 +38,38 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 		setNewEmployee({ ...newEmployee, [field]: value })
 	}
 
-	const handleSaveAddNew = () => {
+	const isDataProvided = obj => {
+		if (
+			!obj.fullName ||
+			!obj.subdivision ||
+			!obj.position ||
+			!obj.status ||
+			!obj.peoplePartner ||
+			!obj.outOfOfficeBalance
+		)
+			setMissingDataAlert(true)
+		return
+	}
+
+	const handleSave = () => {
 		const peoplePartnerId = getIdBasedOnName(newEmployee.peoplePartner, peoplePartners)
 
+		isEditing ? isDataProvided(updatedEmployee) : isDataProvided(newEmployee)
+
+		setStatus(fetchStatuses.loading)
 		const options = {
-			method: 'POST',
-			body: JSON.stringify({ ...newEmployee, peoplePartnerId: peoplePartnerId }),
+			method: isEditing ? 'PUT' : 'POST',
+			body: isEditing ? JSON.stringify(updatedEmployee) : JSON.stringify({ ...newEmployee, peoplePartnerId }),
 			headers: {
 				'Content-Type': 'application/json',
 			},
 		}
-		fetch(`${API_URL}/employees`, options)
+		fetch(isEditing ? `${API_URL}/employees/${updatedEmployee.id}` : `${API_URL}/employees`, options)
 			.then(res => {
-				if (res.status === 201) {
+				if (res.status === 201 || res.status == 200) {
 					setStatus(fetchStatuses.success)
-					setShowModal(false)
 					dispatch(fetchEmployees())
+					setShowModal(false)
 				} else {
 					setStatus(fetchStatuses.clientError)
 				}
@@ -60,23 +77,13 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 			.catch(e => setStatus(fetchStatuses.serverError))
 	}
 
-	useEffect(() => {
-		if (
-			newEmployee.fullName &&
-			newEmployee.subdivision &&
-			newEmployee.position &&
-			newEmployee.status &&
-			newEmployee.peoplePartner &&
-			newEmployee.outOfOfficeBalance
-		)
-			setIsBtnDisabled(false)
-	}, [newEmployee])
-
 	return (
 		<>
 			<Modal show={showModal} onHide={() => setShowModal(false)}>
 				{status === fetchStatuses.clientError || (status === fetchStatuses.serverError && <ErrorMessage />)}
 				{status === fetchStatuses.loading && <LoadingSpinner />}
+
+				{missingDataAlert && <MissingDataAlert />}
 
 				<Modal.Header closeButton>
 					<Modal.Title>{isEditing ? 'Edit' : 'Add'} Employee</Modal.Title>
@@ -84,7 +91,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 				<Modal.Body>
 					<Form>
 						<Form.Group controlId='formFullName'>
-							<Form.Label>Full Name</Form.Label>
+							<Form.Label>Full Name*</Form.Label>
 							<Form.Control
 								type='text'
 								name='fullName'
@@ -93,13 +100,12 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 							/>
 						</Form.Group>
 						<Form.Group controlId='formSubdivision'>
-							<Form.Label>Subdivision</Form.Label>
+							<Form.Label>Subdivision*</Form.Label>
 							<Form.Control
 								as='select'
 								name='subdivision'
 								onChange={e => (isEditing ? handleChange(e) : handleAddNew('subdivision', e.target.value))}
-								value={isEditing ? updatedEmployee.subdivision : newEmployee.subdivision}
-								fullName>
+								value={isEditing ? updatedEmployee.subdivision : newEmployee.subdivision}>
 								{subdivisions.map(subdivision => (
 									<option key={subdivision} value={subdivision}>
 										{subdivision}
@@ -108,7 +114,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 							</Form.Control>
 						</Form.Group>
 						<Form.Group controlId='formPosition'>
-							<Form.Label>Position</Form.Label>
+							<Form.Label>Position*</Form.Label>
 							<Form.Control
 								as='select'
 								name='position'
@@ -122,7 +128,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 							</Form.Control>
 						</Form.Group>
 						<Form.Group controlId='formStatus'>
-							<Form.Label>Status</Form.Label>
+							<Form.Label>Status*</Form.Label>
 							<Form.Control
 								as='select'
 								name='status'
@@ -136,7 +142,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 							</Form.Control>
 						</Form.Group>
 						<Form.Group controlId='formPeoplePartner'>
-							<Form.Label>People Partner</Form.Label>
+							<Form.Label>People Partner*</Form.Label>
 							<Form.Control
 								as='select'
 								name='peoplePartner'
@@ -151,7 +157,7 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 							</Form.Control>
 						</Form.Group>
 						<Form.Group controlId='formOutOfOfficeBalance'>
-							<Form.Label>Out of Office Balance</Form.Label>
+							<Form.Label>Out of Office Balance*</Form.Label>
 							<Form.Control
 								type='number'
 								name='outOfOfficeBalance'
@@ -165,11 +171,9 @@ const EditAddEmployeeModal = ({ showModal, setShowModal, handleChange, handleSav
 					<Button variant='secondary' onClick={() => setShowModal(false)}>
 						Close
 					</Button>
-					{!isBtnDisabled && (
-						<Button variant='primary' onClick={isEditing ? handleSave : handleSaveAddNew}>
-							Save Changes
-						</Button>
-					)}
+					<Button variant='primary' onClick={handleSave}>
+						Save Changes
+					</Button>
 				</Modal.Footer>
 				{status === fetchStatuses.loading && <LoadingSpinner />}
 			</Modal>

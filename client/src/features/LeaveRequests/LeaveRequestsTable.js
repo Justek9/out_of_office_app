@@ -19,7 +19,6 @@ const LeaveRequestsTable = () => {
 	const dispatch = useDispatch()
 	const [currentLeaveRequest, setCurrentLeaveRequest] = useState(null)
 	const [showModal, setShowModal] = useState(false)
-	const [isEditing, setIsEditing] = useState(false)
 	const loggedEmployee = useSelector(state => getName(state))
 	const [newLeaveRequest, setNewLeaveRequest] = useState({
 		employee: loggedEmployee,
@@ -34,7 +33,6 @@ const LeaveRequestsTable = () => {
 	const handleEdit = leaveRequest => {
 		setCurrentLeaveRequest(leaveRequest)
 		setShowModal(true)
-		setIsEditing(true)
 	}
 
 	const handleChangeStatus = (leaveRequest, status) => {
@@ -68,7 +66,6 @@ const LeaveRequestsTable = () => {
 		<>
 			{status === fetchStatuses.loading && <LoadingSpinner />}
 			{status === fetchStatuses.serverError && <ErrorMessage />}
-
 			{leaveRequests.length !== 0 && (
 				<Table responsive='sm'>
 					<thead>
@@ -104,14 +101,13 @@ const LeaveRequestsTable = () => {
 											/>{' '}
 										</>
 									)}
-									{leaveRequest.status === requestStatus.new ||
-										(leaveRequest.status === requestStatus.submitted && (
-											<Button
-												color='orangered'
-												text={'Cancel'}
-												onClick={() => handleChangeStatus(leaveRequest, requestStatus.cancelled)}
-											/>
-										))}
+									{(leaveRequest.status === requestStatus.new || leaveRequest.status === requestStatus.submitted) && (
+										<Button
+											color='orangered'
+											text={'Cancel'}
+											onClick={() => handleChangeStatus(leaveRequest, requestStatus.cancelled)}
+										/>
+									)}
 								</td>
 							</tr>
 						))}
