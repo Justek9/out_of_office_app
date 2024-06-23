@@ -6,7 +6,7 @@ import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { fetchStatuses, statusesObj } from '../../settings/settings'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import { sortASC } from '../../settings/utils'
-import EditAddProjectModal from '../EditAddProjectsModal/EditAddProjectsModal'
+import EditAddProjectModal from './EditAddProjectsModal'
 import { deactivateProject, fetchProjects, getProjects } from '../../redux/projectsReducer'
 import { useDispatch, useSelector } from 'react-redux'
 

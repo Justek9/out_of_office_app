@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import Button from '../../common/Button/Button'
 import Header from '../../common/Header/Header'
-import EditAddProjectModal from '../../features/EditAddProjectsModal/EditAddProjectsModal'
-import ProjectsTable from '../../features/ProjectsTable/ProjectsTable'
+import EditAddProjectModal from './EditAddProjectsModal'
+import ProjectsTable from './ProjectsTable'
+
 
 const Projects = () => {
 	const [showModal, setShowModal] = useState(false)

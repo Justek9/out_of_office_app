@@ -1,16 +1,16 @@
 import { Container } from 'react-bootstrap'
 import { Route, Routes } from 'react-router-dom'
-import NotFound from './pages/NotFound/NotFound'
-import Login from './pages/Login/Login'
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { fetchEmployees } from './redux/employeesReducer'
+import NotFound from './pages/NotFound/NotFound'
+import Login from './pages/Login/Login'
 import NavBar from './layout/Nav/NavBar'
-import Employees from './pages/Employees/Employees'
-import Projects from './pages/Pojects/Projects'
-import LeaveRequests from './pages/LeaveRequests/LeaveRequests'
-import ApprovalRequests from './pages/ApprovalRequests/ApprovalRequests'
 import TopBar from './layout/TopBar/TopBar'
+import Employees from './features/Employees/Employees'
+import LeaveRequests from './features/LeaveRequests/LeaveRequests'
+import ApprovalRequests from './features/ApprovalRequests/ApprovalRequests'
+import Projects from './features/Projects/Projects'
 
 function App() {
 	const dispatch = useDispatch()

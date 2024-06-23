@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { Table } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { deactivateEmployee, fetchEmployees, getAllEmployees, updateEmployee } from '../../redux/employeesReducer'
-import EditEmployeeModal from '../EditAddEmployeeModal/EditAddEmployeeModal'
 import { API_URL } from '../../settings/config'
 import Button from '../../common/Button/Button'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 import { fetchStatuses, statusesObj } from '../../settings/settings'
 import { sortASC } from '../../settings/utils'
+import EditAddEmployeeModal from './EditAddEmployeeModal'
 
 const EmployeesTable = () => {
 	const employees = useSelector(state => getAllEmployees(state))
@@ -125,7 +125,7 @@ const EmployeesTable = () => {
 			)}
 
 			{currentEmployee && (
-				<EditEmployeeModal
+				<EditAddEmployeeModal
 					showModal={showModal}
 					setShowModal={setShowModal}
 					handleSave={handleSave}

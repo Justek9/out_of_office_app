@@ -4,6 +4,5 @@ const approvalRequests = require('../controllers/approvalRequests.controller')
 
 router.get('/approvalRequests', approvalRequests.getAll)
 router.patch('/approvalRequests/:id', approvalRequests.changeStatus)
-router.post('/approvalRequests', approvalRequests.add)
 
 module.exports = router

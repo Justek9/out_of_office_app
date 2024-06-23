@@ -8,7 +8,7 @@ import { sortASC } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
 import { changeStatusLeaveRequest, fetchLeaveRequests, getLeaveRequests } from '../../redux/leaveRequestsReducer'
 import { API_URL } from '../../settings/config'
-import EditAddLeaveRequestModal from '../EditAddLeaveRequestModal/EditAddLeaveRequestModal'
+import EditAddLeaveRequestModal from './EditAddLeaveRequestModal'
 import { getName } from '../../redux/loggedPersonReducer'
 
 const LeaveRequestsTable = () => {

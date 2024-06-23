@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import Header from '../../common/Header/Header'
-import EditAddLeaveRequestModal from '../../features/EditAddLeaveRequestModal/EditAddLeaveRequestModal'
-import LeaveRequestsTable from '../../features/LeaveRequestsTable/LeaveRequestsTable'
 import { useSelector } from 'react-redux'
 import { getName } from '../../redux/loggedPersonReducer'
+import Header from '../../common/Header/Header'
 import Button from '../../common/Button/Button'
 import { fetchStatuses } from '../../settings/settings'
+import LeaveRequestsTable from './LeaveRequestsTable'
+import EditAddLeaveRequestModal from './EditAddLeaveRequestModal'
 
 const LeaveRequests = () => {
 	const [showModal, setShowModal] = useState(false)

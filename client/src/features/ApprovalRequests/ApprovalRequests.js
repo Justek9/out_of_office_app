@@ -1,5 +1,5 @@
 import Header from '../../common/Header/Header'
-import ApprovalRequestsTable from '../../features/ApprovalRequestTable/ApprovalRequestsTable'
+import ApprovalRequestsTable from './ApprovalRequestsTable'
 
 const ApprovalRequests = () => {
 	return (

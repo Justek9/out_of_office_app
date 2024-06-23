@@ -5,7 +5,6 @@ import { getIdBasedOnName, isActionEdit } from '../../settings/utils'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllEmployees } from '../../redux/employeesReducer'
 import { fetchLeaveRequests } from '../../redux/leaveRequestsReducer'
-import { useEffect, useState } from 'react'
 import ErrorMessage from '../../common/ErrorMessage/ErrorMessage'
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner'
 
